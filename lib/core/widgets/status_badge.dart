@@ -21,7 +21,11 @@ class StatusBadge extends StatelessWidget {
   final bool dot;
 
   Color _color(BuildContext context) {
-    final status = Theme.of(context).extension<AppStatusColors>()!;
+    // Fall back rather than assert: a badge rendered under a Theme that doesn't
+    // carry the extension (a dialog with a local theme, a test, a future
+    // embedded surface) should still paint, not throw a null-check error.
+    final status = Theme.of(context).extension<AppStatusColors>() ??
+        AppStatusColors.light;
     final scheme = Theme.of(context).colorScheme;
     return switch (tone) {
       StatusTone.success => status.success,
