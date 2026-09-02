@@ -14,7 +14,7 @@ import '../../../../shared/models/unit_status.dart';
 import '../../../properties/presentation/providers/property_providers.dart';
 import '../../../tenancies/presentation/providers/tenancy_controller.dart';
 import '../../../tenancies/presentation/providers/tenancy_providers.dart';
-import '../../../tenancies/presentation/widgets/tenant_credentials.dart';
+import '../../../tenancies/presentation/widgets/tenant_invite_dialog.dart';
 import '../../../tenants/presentation/screens/tenant_profile_screen.dart';
 import '../providers/unit_controller.dart';
 import '../providers/unit_providers.dart';
@@ -280,8 +280,8 @@ class _TenancySection extends ConsumerWidget {
                 ),
                 if (active.tenantId != null)
                   TextButton(
-                    onPressed: () => _resetPassword(context, ref, active),
-                    child: const Text('Reset password'),
+                    onPressed: () => _sendPasswordReset(context, ref, active),
+                    child: const Text('Send reset link'),
                   ),
                 TextButton(
                   onPressed: () => _confirmEnd(context, ref, active.id),
@@ -321,7 +321,7 @@ class _TenancySection extends ConsumerWidget {
     await ref.read(tenancyControllerProvider.notifier).end(id);
   }
 
-  Future<void> _resetPassword(
+  Future<void> _sendPasswordReset(
     BuildContext context,
     WidgetRef ref,
     Tenancy tenancy,
@@ -329,10 +329,11 @@ class _TenancySection extends ConsumerWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Reset password?'),
+        title: const Text('Send reset link?'),
         content: Text(
-          'Generate a new password for ${tenancy.tenantEmail}? Their current '
-          'password will stop working.',
+          'Email a password reset link to ${tenancy.tenantEmail}? They choose '
+          'the new password themselves; their current one keeps working until '
+          'they do.',
         ),
         actions: [
           TextButton(
@@ -341,23 +342,19 @@ class _TenancySection extends ConsumerWidget {
           ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Reset'),
+            child: const Text('Send'),
           ),
         ],
       ),
     );
     if (confirmed != true) return;
 
-    final password =
-        await ref.read(tenancyControllerProvider.notifier).resetPassword(
+    final email =
+        await ref.read(tenancyControllerProvider.notifier).sendPasswordReset(
               unitId: tenancy.unitId,
               tenantId: tenancy.tenantId!,
             );
-    if (password == null || !context.mounted) return;
-    await showTenantCredentialsDialog(
-      context,
-      email: tenancy.tenantEmail,
-      password: password,
-    );
+    if (email == null || !context.mounted) return;
+    await showPasswordResetSentDialog(context, email: email);
   }
 }

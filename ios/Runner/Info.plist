@@ -66,5 +66,22 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<!-- Supabase auth callback. Tenant invite and password-recovery emails link
+	     to propertyiq://login-callback; supabase_flutter picks the deep link up
+	     and completes the session. Keep in sync with INVITE_REDIRECT_URL on the
+	     Edge Functions and the project's Redirect URLs allow-list. -->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>supabase-auth-callback</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>propertyiq</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>

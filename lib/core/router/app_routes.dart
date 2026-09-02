@@ -7,6 +7,9 @@ class AppRoutes {
   static const String login = '/login';
   static const String signup = '/signup';
 
+  /// Where invite / password-recovery deep links land.
+  static const String setPassword = '/set-password';
+
   /// Manager home.
   static const String dashboard = '/dashboard';
 

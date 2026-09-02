@@ -10,6 +10,7 @@ String? resolveRedirect({
   required bool hasSession,
   required UserRole? role,
   required bool profileLoading,
+  bool needsPassword = false,
 }) {
   final isAuthRoute =
       location == AppRoutes.login || location == AppRoutes.signup;
@@ -18,6 +19,12 @@ String? resolveRedirect({
   // Logged out → only the auth routes are reachable.
   if (!hasSession) {
     return isAuthRoute ? null : AppRoutes.login;
+  }
+
+  // Arrived via an invite / recovery link: a session exists, but the user has
+  // never chosen a password. Nothing else is reachable until they do.
+  if (needsPassword) {
+    return location == AppRoutes.setPassword ? null : AppRoutes.setPassword;
   }
 
   // Session exists but role not yet known → hold on the splash screen.
@@ -32,8 +39,9 @@ String? resolveRedirect({
   final home =
       role.isManager ? AppRoutes.dashboard : AppRoutes.myUnit;
 
-  // Authenticated users never sit on auth/splash.
-  if (isAuthRoute || isSplash) return home;
+  // Authenticated users never sit on auth/splash, nor linger on set-password
+  // once the flag has cleared.
+  if (isAuthRoute || isSplash || location == AppRoutes.setPassword) return home;
 
   // Role gating: each home belongs to exactly one role.
   if (location == AppRoutes.dashboard && !role.isManager) return home;

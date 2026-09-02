@@ -99,6 +99,88 @@ final class SessionProvider
 
 String _$sessionHash() => r'cdad50bd2fda6dd662e70912f7b6dad2105102b6';
 
+/// True while the user arrived via an invite or password-recovery deep link and
+/// has not yet chosen a password.
+///
+/// `supabase_flutter` establishes a real session from that link, so without
+/// this flag an invited tenant would land straight in the app holding a
+/// credential they never chose. The router pins them to `/set-password` until
+/// [resolve] is called.
+
+@ProviderFor(PasswordRecovery)
+final passwordRecoveryProvider = PasswordRecoveryProvider._();
+
+/// True while the user arrived via an invite or password-recovery deep link and
+/// has not yet chosen a password.
+///
+/// `supabase_flutter` establishes a real session from that link, so without
+/// this flag an invited tenant would land straight in the app holding a
+/// credential they never chose. The router pins them to `/set-password` until
+/// [resolve] is called.
+final class PasswordRecoveryProvider
+    extends $NotifierProvider<PasswordRecovery, bool> {
+  /// True while the user arrived via an invite or password-recovery deep link and
+  /// has not yet chosen a password.
+  ///
+  /// `supabase_flutter` establishes a real session from that link, so without
+  /// this flag an invited tenant would land straight in the app holding a
+  /// credential they never chose. The router pins them to `/set-password` until
+  /// [resolve] is called.
+  PasswordRecoveryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'passwordRecoveryProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$passwordRecoveryHash();
+
+  @$internal
+  @override
+  PasswordRecovery create() => PasswordRecovery();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(bool value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<bool>(value),
+    );
+  }
+}
+
+String _$passwordRecoveryHash() => r'2316cb01aea9d5ba38001eb2ecb91ecbc7ec993b';
+
+/// True while the user arrived via an invite or password-recovery deep link and
+/// has not yet chosen a password.
+///
+/// `supabase_flutter` establishes a real session from that link, so without
+/// this flag an invited tenant would land straight in the app holding a
+/// credential they never chose. The router pins them to `/set-password` until
+/// [resolve] is called.
+
+abstract class _$PasswordRecovery extends $Notifier<bool> {
+  bool build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<bool, bool>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<bool, bool>,
+              bool,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
+
 /// The signed-in user's profile (role lives here). Null when logged out.
 
 @ProviderFor(currentProfile)

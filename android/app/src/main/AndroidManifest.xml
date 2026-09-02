@@ -25,6 +25,17 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+            <!-- Supabase auth callback. Tenant invite and password-recovery
+                 emails link to propertyiq://login-callback; supabase_flutter
+                 picks the deep link up and completes the session. Keep in sync
+                 with INVITE_REDIRECT_URL on the Edge Functions and the project's
+                 Redirect URLs allow-list. -->
+            <intent-filter android:autoVerify="false">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="propertyiq" android:host="login-callback"/>
+            </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->

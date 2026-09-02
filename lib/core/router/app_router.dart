@@ -3,6 +3,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../features/auth/presentation/providers/auth_providers.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
+import '../../features/auth/presentation/screens/set_password_screen.dart';
 import '../../features/auth/presentation/screens/signup_screen.dart';
 import '../../features/common/presentation/screens/splash_screen.dart';
 import '../../features/dashboard/presentation/screens/dashboard_screen.dart';
@@ -42,6 +43,7 @@ GoRouter goRouter(Ref ref) {
         hasSession: session != null,
         role: profileAsync.value?.role,
         profileLoading: session != null && profileAsync.isLoading,
+        needsPassword: ref.read(passwordRecoveryProvider),
       );
     },
     routes: [
@@ -56,6 +58,10 @@ GoRouter goRouter(Ref ref) {
       GoRoute(
         path: AppRoutes.signup,
         builder: (_, _) => const SignupScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.setPassword,
+        builder: (_, _) => const SetPasswordScreen(),
       ),
       // Tab roots — wrapped in the persistent bottom-nav shell.
       ShellRoute(
@@ -165,6 +171,7 @@ GoRouter goRouter(Ref ref) {
   ref
     ..listen(sessionProvider, (_, _) => router.refresh())
     ..listen(currentProfileProvider, (_, _) => router.refresh())
+    ..listen(passwordRecoveryProvider, (_, _) => router.refresh())
     ..onDispose(router.dispose);
 
   return router;

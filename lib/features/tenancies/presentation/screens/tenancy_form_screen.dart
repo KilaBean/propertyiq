@@ -9,7 +9,7 @@ import '../../../../shared/models/rent_cycle.dart';
 import '../../../../shared/models/tenancy.dart';
 import '../../../../shared/models/tenancy_status.dart';
 import '../providers/tenancy_controller.dart';
-import '../widgets/tenant_credentials.dart';
+import '../widgets/tenant_invite_dialog.dart';
 
 /// Assign a tenant to a unit (create) or edit an existing tenancy. On create
 /// the tenant is invited by email; the email/unit are fixed once created.
@@ -129,10 +129,10 @@ class _TenancyFormScreenState extends ConsumerState<TenancyFormScreen> {
       endDate: _end,
     );
     if (invite == null || !mounted) return;
-    await showTenantCredentialsDialog(
+    await showTenantInviteDialog(
       context,
       email: invite.email,
-      password: invite.password,
+      invited: invite.invited,
     );
     if (mounted) context.pop();
   }

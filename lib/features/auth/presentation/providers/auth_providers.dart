@@ -20,6 +20,32 @@ Session? session(Ref ref) {
   return ref.watch(authRepositoryProvider).currentSession;
 }
 
+/// True while the user arrived via an invite or password-recovery deep link and
+/// has not yet chosen a password.
+///
+/// `supabase_flutter` establishes a real session from that link, so without
+/// this flag an invited tenant would land straight in the app holding a
+/// credential they never chose. The router pins them to `/set-password` until
+/// [resolve] is called.
+@Riverpod(keepAlive: true)
+class PasswordRecovery extends _$PasswordRecovery {
+  @override
+  bool build() {
+    ref.listen(authChangesProvider, (_, next) {
+      if (next.value?.event == AuthChangeEvent.passwordRecovery) {
+        state = true;
+      } else if (next.value?.event == AuthChangeEvent.signedOut) {
+        // Don't strand the next user on the set-password screen.
+        state = false;
+      }
+    });
+    return false;
+  }
+
+  /// Called once the user has set their own password.
+  void resolve() => state = false;
+}
+
 /// The signed-in user's profile (role lives here). Null when logged out.
 @Riverpod(keepAlive: true)
 Future<Profile?> currentProfile(Ref ref) async {

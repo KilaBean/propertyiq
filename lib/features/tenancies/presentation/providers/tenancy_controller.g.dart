@@ -45,7 +45,7 @@ final class TenancyControllerProvider
   TenancyController create() => TenancyController();
 }
 
-String _$tenancyControllerHash() => r'cafd45d1837715694bc130fb1ece31b5616d2e87';
+String _$tenancyControllerHash() => r'9ae6d2af323de0aa8a474472a6653a0b2d3f8e0e';
 
 /// Assign / update / end / delete tenancies. Returns `true` on success.
 /// The realtime [tenanciesByUnit] stream reflects changes automatically;
