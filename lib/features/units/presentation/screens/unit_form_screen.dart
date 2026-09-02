@@ -30,8 +30,6 @@ class _UnitFormScreenState extends ConsumerState<UnitFormScreen> {
   late final TextEditingController _rent = TextEditingController(
     text: widget.initial?.baseRent.toString() ?? '',
   );
-  late UnitStatus _status = widget.initial?.status ?? UnitStatus.vacant;
-
   bool get _isEditing => widget.initial != null;
 
   @override
@@ -50,7 +48,6 @@ class _UnitFormScreenState extends ConsumerState<UnitFormScreen> {
           label: _label.text.trim(),
           bedrooms: int.tryParse(_bedrooms.text.trim()) ?? 0,
           baseRent: num.tryParse(_rent.text.trim()) ?? 0,
-          status: _status,
         );
     if (ok && mounted) context.pop();
   }
@@ -107,23 +104,10 @@ class _UnitFormScreenState extends ConsumerState<UnitFormScreen> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 20),
-                Text('Status', style: Theme.of(context).textTheme.labelLarge),
-                const SizedBox(height: 8),
-                SegmentedButton<UnitStatus>(
-                  segments: const [
-                    ButtonSegment(
-                      value: UnitStatus.vacant,
-                      label: Text('Vacant'),
-                    ),
-                    ButtonSegment(
-                      value: UnitStatus.occupied,
-                      label: Text('Occupied'),
-                    ),
-                  ],
-                  selected: {_status},
-                  onSelectionChanged: (s) => setState(() => _status = s.first),
-                ),
+                if (_isEditing) ...[
+                  const SizedBox(height: 20),
+                  _DerivedStatusNote(status: widget.initial!.status),
+                ],
                 const SizedBox(height: 24),
                 FilledButton(
                   onPressed: state.isLoading ? null : _submit,
@@ -137,6 +121,69 @@ class _UnitFormScreenState extends ConsumerState<UnitFormScreen> {
                 ),
               ],
             ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Occupancy is derived from the unit's tenancies by the database (migration
+/// 0012), so it is shown here rather than offered as an editable control —
+/// a toggle would let the manager set a value the next tenancy change silently
+/// overwrites.
+class _DerivedStatusNote extends StatelessWidget {
+  const _DerivedStatusNote({required this.status});
+
+  final UnitStatus status;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final occupied = status == UnitStatus.occupied;
+    return Semantics(
+      label: 'Occupancy status: ${status.label}. '
+          "Set automatically by this unit's tenancies.",
+      readOnly: true,
+      child: ExcludeSemantics(
+        child: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: scheme.surfaceContainerHighest.withValues(alpha: 0.4),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: scheme.outlineVariant),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                occupied ? Icons.person_outline : Icons.meeting_room_outlined,
+                size: 20,
+                color: scheme.onSurfaceVariant,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      status.label,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      occupied
+                          ? 'Set automatically by the active tenancy.'
+                          : 'Assign a tenant to mark this unit occupied.',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: scheme.onSurfaceVariant,
+                          ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
       ),

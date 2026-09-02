@@ -3,12 +3,15 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../core/supabase/supabase_providers.dart';
 import '../../../../shared/models/unit.dart';
-import '../../../../shared/models/unit_status.dart';
 
 part 'unit_repository.g.dart';
 
 /// Data access for `units`. RLS scopes every row to units inside a property
 /// the signed-in manager owns.
+///
+/// `status` is deliberately absent from the write methods: since migration
+/// 0012 it is derived from the unit's tenancies by a database trigger, and a
+/// BEFORE UPDATE trigger overwrites anything the client tries to send.
 class UnitRepository {
   UnitRepository(this._client);
 
@@ -27,14 +30,12 @@ class UnitRepository {
     required String label,
     required int bedrooms,
     required num baseRent,
-    required UnitStatus status,
   }) async {
     await _client.from(_table).insert({
       'property_id': propertyId,
       'label': label,
       'bedrooms': bedrooms,
       'base_rent': baseRent,
-      'status': status.name,
     });
   }
 
@@ -43,13 +44,11 @@ class UnitRepository {
     required String label,
     required int bedrooms,
     required num baseRent,
-    required UnitStatus status,
   }) async {
     await _client.from(_table).update({
       'label': label,
       'bedrooms': bedrooms,
       'base_rent': baseRent,
-      'status': status.name,
     }).eq('id', id);
   }
 

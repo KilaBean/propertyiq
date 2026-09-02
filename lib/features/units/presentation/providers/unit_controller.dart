@@ -1,12 +1,15 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../../../../shared/models/unit_status.dart';
 import '../../../dashboard/presentation/providers/dashboard_providers.dart';
 import '../../data/repositories/unit_repository.dart';
 
 part 'unit_controller.g.dart';
 
 /// Create / update / delete for units. Returns `true` on success.
+///
+/// There is no `status` parameter: occupancy is derived from the unit's
+/// tenancies in the database (migration 0012), so it changes by assigning or
+/// ending a tenancy, never by editing the unit.
 @riverpod
 class UnitController extends _$UnitController {
   @override
@@ -18,7 +21,6 @@ class UnitController extends _$UnitController {
     required String label,
     required int bedrooms,
     required num baseRent,
-    required UnitStatus status,
   }) async {
     state = const AsyncLoading();
     final guarded = await AsyncValue.guard(() async {
@@ -29,7 +31,6 @@ class UnitController extends _$UnitController {
           label: label,
           bedrooms: bedrooms,
           baseRent: baseRent,
-          status: status,
         );
       } else {
         await repo.update(
@@ -37,7 +38,6 @@ class UnitController extends _$UnitController {
           label: label,
           bedrooms: bedrooms,
           baseRent: baseRent,
-          status: status,
         );
       }
     });
