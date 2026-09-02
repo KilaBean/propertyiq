@@ -45,10 +45,14 @@ class StatusBadge extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (dot) ...[
-            Container(
-              width: 6,
-              height: 6,
-              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+            // Purely decorative: it restates the colour, which the label
+            // already carries in words.
+            ExcludeSemantics(
+              child: Container(
+                width: 6,
+                height: 6,
+                decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+              ),
             ),
             const SizedBox(width: 6),
           ],

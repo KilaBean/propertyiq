@@ -26,10 +26,12 @@ class PropertyDetailScreen extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.edit_outlined),
+            tooltip: 'Edit property',
             onPressed: () => context.push(AppRoutes.propertyEdit(propertyId)),
           ),
           IconButton(
             icon: const Icon(Icons.delete_outline),
+            tooltip: 'Delete property',
             onPressed: () => _confirmDelete(context, ref),
           ),
         ],

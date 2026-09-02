@@ -20,6 +20,15 @@ class MetricCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final accent = color ?? scheme.primary;
+    // Without merging, a screen reader reads the value and the label as two
+    // unrelated nodes ("21" … "Occupied"), which loses the pairing entirely.
+    return Semantics(
+      label: '$label: $value',
+      child: ExcludeSemantics(child: _card(context, scheme, accent)),
+    );
+  }
+
+  Widget _card(BuildContext context, ColorScheme scheme, Color accent) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -42,9 +51,9 @@ class MetricCard extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
             ),
             Text(
               label,

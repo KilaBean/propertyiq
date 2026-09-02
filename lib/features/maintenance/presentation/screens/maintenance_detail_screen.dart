@@ -155,26 +155,30 @@ class _Thumb extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final scheme = Theme.of(context).colorScheme;
     final url = ref.watch(maintenancePhotoUrlProvider(path));
-    return GestureDetector(
-      onTap: () => url.whenData((u) => _openViewer(context, u)),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
-        child: SizedBox(
-          width: 88,
-          height: 88,
-          child: url.when(
-            data: (u) => Image.network(
-              u,
-              fit: BoxFit.cover,
-              errorBuilder: (_, _, _) => Container(
+    return Semantics(
+      button: true,
+      label: 'Attached photo. Activate to view full screen.',
+      child: GestureDetector(
+        onTap: () => url.whenData((u) => _openViewer(context, u)),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: SizedBox(
+            width: 88,
+            height: 88,
+            child: url.when(
+              data: (u) => Image.network(
+                u,
+                fit: BoxFit.cover,
+                errorBuilder: (_, _, _) => Container(
+                  color: scheme.surfaceContainerHighest,
+                  child: const Icon(Icons.broken_image_outlined),
+                ),
+              ),
+              loading: () => Container(color: scheme.surfaceContainerHighest),
+              error: (_, _) => Container(
                 color: scheme.surfaceContainerHighest,
                 child: const Icon(Icons.broken_image_outlined),
               ),
-            ),
-            loading: () => Container(color: scheme.surfaceContainerHighest),
-            error: (_, _) => Container(
-              color: scheme.surfaceContainerHighest,
-              child: const Icon(Icons.broken_image_outlined),
             ),
           ),
         ),

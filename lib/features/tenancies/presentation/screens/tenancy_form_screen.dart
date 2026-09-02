@@ -249,6 +249,7 @@ class _TenancyFormScreenState extends ConsumerState<TenancyFormScreen> {
                       ? const Icon(Icons.calendar_today_outlined)
                       : IconButton(
                           icon: const Icon(Icons.clear),
+                          tooltip: 'Clear end date',
                           onPressed: () => setState(() => _end = null),
                         ),
                   onTap: () => _pickDate(isStart: false),

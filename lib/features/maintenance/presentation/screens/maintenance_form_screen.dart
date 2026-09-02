@@ -215,17 +215,37 @@ class _PhotoTile extends StatelessWidget {
           ),
         ),
         Positioned(
-          top: 4,
-          right: 4,
-          child: GestureDetector(
-            onTap: onRemove,
-            child: Container(
-              padding: const EdgeInsets.all(2),
-              decoration: const BoxDecoration(
-                color: Colors.black54,
-                shape: BoxShape.circle,
+          top: 0,
+          right: 0,
+          child: Semantics(
+            button: true,
+            label: 'Remove photo',
+            child: GestureDetector(
+              onTap: onRemove,
+              // The visible chip is ~20px. The transparent box around it brings
+              // the tappable area up to the 44px minimum, extending inward over
+              // the thumbnail rather than outside the tile's bounds.
+              behavior: HitTestBehavior.opaque,
+              child: SizedBox(
+                width: 44,
+                height: 44,
+                child: Align(
+                  alignment: Alignment.topRight,
+                  child: Container(
+                    margin: const EdgeInsets.all(4),
+                    padding: const EdgeInsets.all(2),
+                    decoration: const BoxDecoration(
+                      color: Colors.black54,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.close,
+                      size: 16,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
               ),
-              child: const Icon(Icons.close, size: 16, color: Colors.white),
             ),
           ),
         ),
@@ -242,23 +262,29 @@ class _AddTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 84,
-        height: 84,
-        decoration: BoxDecoration(
-          color: scheme.surface,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: scheme.outlineVariant),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.add_a_photo_outlined, color: scheme.primary),
-            const SizedBox(height: 4),
-            Text('Add', style: Theme.of(context).textTheme.labelSmall),
-          ],
+    return Semantics(
+      button: true,
+      label: 'Add a photo to this request',
+      child: ExcludeSemantics(
+        child: GestureDetector(
+          onTap: onTap,
+          child: Container(
+            width: 84,
+            height: 84,
+            decoration: BoxDecoration(
+              color: scheme.surface,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: scheme.outlineVariant),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.add_a_photo_outlined, color: scheme.primary),
+                const SizedBox(height: 4),
+                Text('Add', style: Theme.of(context).textTheme.labelSmall),
+              ],
+            ),
+          ),
         ),
       ),
     );

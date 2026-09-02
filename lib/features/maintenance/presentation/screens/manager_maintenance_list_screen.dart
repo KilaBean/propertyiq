@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/layout/breakpoints.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/widgets/async_value_view.dart';
 import '../../../../core/widgets/empty_state.dart';
@@ -53,8 +54,9 @@ class ManagerMaintenanceListScreen extends ConsumerWidget {
                         ],
                       );
                     }
-                    return ListView.builder(
+                    return ResponsiveCardList(
                       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                      childAspectRatio: 2.6,
                       itemCount: items.length,
                       itemBuilder: (context, i) {
                         final v = items[i];

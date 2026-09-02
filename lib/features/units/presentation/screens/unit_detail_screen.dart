@@ -87,6 +87,7 @@ class _UnitDetail extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.edit_outlined),
+            tooltip: 'Edit unit',
             onPressed: () => context.push(
               AppRoutes.unitEdit(propertyId),
               extra: unit,
@@ -94,6 +95,7 @@ class _UnitDetail extends ConsumerWidget {
           ),
           IconButton(
             icon: const Icon(Icons.delete_outline),
+            tooltip: 'Delete unit',
             onPressed: () => _confirmDeleteUnit(context, ref),
           ),
         ],

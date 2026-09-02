@@ -49,6 +49,10 @@ String? resolveRedirect({
   // Tenant area (My Unit + tenant maintenance) — tenant-only.
   if (location.startsWith(AppRoutes.myUnit) && !role.isTenant) return home;
 
+  // Manager-facing tenant profile — manager-only. RLS already stops a tenant
+  // reading another profile, but the route should not be reachable either.
+  if (location == AppRoutes.tenantProfile && !role.isManager) return home;
+
   // Property management + manager maintenance — manager-only.
   if (location.startsWith(AppRoutes.properties) && !role.isManager) return home;
   if (location.startsWith(AppRoutes.maintenance) && !role.isManager) return home;

@@ -19,6 +19,16 @@ class UnitCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return Semantics(
+      button: onTap != null,
+      label:
+          '${unit.label}, ${unit.bedrooms} bedroom, '
+          '${formatMoney(unit.baseRent, currency)}, ${unit.status.label}',
+      child: ExcludeSemantics(child: _card(context)),
+    );
+  }
+
+  Widget _card(BuildContext context) {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: ListTile(

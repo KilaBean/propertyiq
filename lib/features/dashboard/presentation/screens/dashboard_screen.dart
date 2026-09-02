@@ -133,10 +133,12 @@ class _TopNav extends StatelessWidget {
       actions: [
         RoundIconButton(
           icon: Icons.add,
+          label: 'New property',
           onTap: () => context.push(AppRoutes.propertyNew),
         ),
         RoundIconButton(
           icon: Icons.notifications_none,
+          label: 'Notifications',
           onTap: () => ScaffoldMessenger.of(context)
             ..hideCurrentSnackBar()
             ..showSnackBar(

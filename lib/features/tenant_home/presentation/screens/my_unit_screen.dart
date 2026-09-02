@@ -37,6 +37,7 @@ class MyUnitScreen extends ConsumerWidget {
                 actions: [
                   RoundIconButton(
                     icon: Icons.notifications_none,
+                    label: 'Notifications',
                     onTap: () => ScaffoldMessenger.of(context)
                       ..hideCurrentSnackBar()
                       ..showSnackBar(

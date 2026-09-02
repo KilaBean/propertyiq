@@ -14,7 +14,25 @@ class PropertyCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final scheme = Theme.of(context).colorScheme;
     final photoPath = property.photoPath;
+    final subtitle = property.address?.isNotEmpty == true
+        ? property.address!
+        : property.currency;
 
+    return Semantics(
+      button: onTap != null,
+      label: '${property.name}, $subtitle',
+      child: ExcludeSemantics(
+        child: _card(context, scheme, photoPath, subtitle),
+      ),
+    );
+  }
+
+  Widget _card(
+    BuildContext context,
+    ColorScheme scheme,
+    String? photoPath,
+    String subtitle,
+  ) {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: ListTile(
@@ -29,11 +47,7 @@ class PropertyCard extends ConsumerWidget {
           property.name,
           style: Theme.of(context).textTheme.titleMedium,
         ),
-        subtitle: Text(
-          property.address?.isNotEmpty == true
-              ? property.address!
-              : property.currency,
-        ),
+        subtitle: Text(subtitle),
         trailing: const Icon(Icons.chevron_right),
         onTap: onTap,
       ),
