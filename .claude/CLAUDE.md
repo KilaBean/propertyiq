@@ -250,18 +250,10 @@ Each feature:
 feature/
 
 data/
-domain/
 presentation/
 
 data/
-models/
-datasources/
 repositories/
-
-domain/
-entities/
-repositories/
-usecases/
 
 presentation/
 providers/
@@ -273,12 +265,31 @@ Dependencies:
 presentation
 ↓
 
-domain
-↓
-
 data
 
 Never violate boundaries.
+
+Two layers, not three.
+
+There is no domain/ layer.
+
+Repositories return Freezed models from shared/models directly to providers.
+
+Why:
+
+A domain layer means entities, repository interfaces, usecases, and mappers
+for every feature. With one data source and models that already mirror the
+database, that roughly doubles the file count and buys nothing.
+
+This follows the product principles above: avoid fancy architecture, avoid
+premature optimization.
+
+Revisit if:
+
+A second data source appears (offline cache, a non-Supabase backend).
+
+Business rules grow past what a repository plus a database constraint can
+express.
 
 ---
 
@@ -430,14 +441,33 @@ Readable
 
 # COLORS
 
+Source of truth:
+lib/core/theme/app_colors.dart
+
 Primary:
-Deep Green
+Royal Blue
+#3E63F0
+
+Primary light (dark theme):
+#7B93F6
 
 Secondary:
-Emerald
+#5B7BF5
 
 Neutral:
-Gray scale
+Gray scale, cool-toned
+
+Background (light):
+#EFF1FB soft lavender
+
+Background (dark):
+#0E1020
+
+Note:
+
+Earlier drafts specified deep green / emerald. The shipped palette is
+blue/lavender, and the logo assets, landing page and marketing screenshots
+are all built around it. Blue is correct; this section was the stale one.
 
 Use color sparingly.
 
