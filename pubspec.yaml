@@ -34,16 +34,18 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
-  flutter_riverpod: ^3.3.2
-  riverpod_annotation: ^4.0.3
-  go_router: ^17.3.0
-  supabase_flutter: ^2.15.0
+  flutter_riverpod: ^3.3.2  # pinned exactly by riverpod_annotation 4.0.3
+  riverpod_annotation: ^4.0.3  # pinned exactly by riverpod_generator 4.0.4
+  go_router: ^18.0.1
+  supabase_flutter: ^2.17.2
   freezed_annotation: ^3.1.0
   json_annotation: ^4.12.0
-  intl: ^0.20.3
+  # ^0.20.2, not ^0.20.3: go_router 18 pulls in flutter_localizations, which
+  # pins intl to exactly the version the Flutter SDK bundles (0.20.2 here).
+  intl: ^0.20.2
   collection: ^1.19.1
-  share_plus: ^13.2.0
-  google_fonts: ^8.1.0
+  share_plus: ^13.3.0
+  google_fonts: ^8.2.1
   image_picker: ^1.2.3
   url_launcher: ^6.3.2
   fl_chart: ^1.2.0
@@ -58,10 +60,22 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
-  build_runner: ^2.15.0
+  build_runner: ^2.15.0  # see the freezed note below
+  # PINNED TO A PRE-RELEASE, deliberately, until the toolchain moves.
+  #
+  # The codegen stack is boxed in by the analyzer version, which is bounded by
+  # the Dart SDK (3.12, from Flutter 3.44):
+  #   freezed 3.2.5      -> analyzer >=9 <11
+  #   freezed 3.2.6-dev.1-> analyzer ^12   <- only 3.x that matches the others
+  #   freezed 4.x        -> Dart >=3.13    <- out of reach until Flutter moves
+  #   riverpod_generator >=4.0.6 -> analyzer ^13
+#   build_runner >=2.15.2      -> analyzer >=13.3
+  # So stable freezed and current riverpod_generator cannot coexist here.
+  # Upgrading Flutter to a Dart >=3.13 release clears this: move to
+  # freezed ^4.0.1 and riverpod_generator ^4.0.8 together at that point.
   freezed: ^3.2.6-dev.1
-  json_serializable: ^6.14.0
-  riverpod_generator: ^4.0.4
+  json_serializable: ^6.14.0  # see the freezed note below
+  riverpod_generator: ^4.0.4  # see the freezed note above
   mocktail: ^1.0.5
 
 # For information on the generic Dart part of this file, see the
