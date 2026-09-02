@@ -1,0 +1,26 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "PropertyIQ (dev)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "args": [
+        "--dart-define=SUPABASE_URL=https://wzixvrrjugcrzfpmprxv.supabase.co",
+        "--dart-define=SUPABASE_ANON_KEY=sb_publishable_8D0Lq__HWfbfwg7-9TE1Iw_IQsMjiu1"
+      ]
+    },
+    {
+      "name": "PropertyIQ (profile)",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "profile",
+      "program": "lib/main.dart",
+      "args": [
+        "--dart-define=SUPABASE_URL=https://wzixvrrjugcrzfpmprxv.supabase.co",
+        "--dart-define=SUPABASE_ANON_KEY=sb_publishable_8D0Lq__HWfbfwg7-9TE1Iw_IQsMjiu1"
+      ]
+    }
+  ]
+}

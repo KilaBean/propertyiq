@@ -1,0 +1,18 @@
+# Normalise line endings so the repo stays LF regardless of contributor OS.
+* text=auto eol=lf
+
+# Binary assets — never touch these.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.ico binary
+*.ttf binary
+*.otf binary
+*.jar binary
+*.keystore binary
+*.jks binary
+
+# Generated Dart: keep it in the repo (the build is reproducible without
+# build_runner) but keep it out of diffs and language stats.
+*.g.dart       linguist-generated=true -diff
+*.freezed.dart linguist-generated=true -diff
