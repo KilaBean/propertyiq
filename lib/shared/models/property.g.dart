@@ -11,7 +11,7 @@ _Property _$PropertyFromJson(Map<String, dynamic> json) => _Property(
   managerId: json['manager_id'] as String,
   name: json['name'] as String,
   address: json['address'] as String?,
-  currency: json['currency'] as String? ?? 'NGN',
+  currency: json['currency'] as String? ?? 'GHS',
   photoPath: json['photo_path'] as String?,
   createdAt: json['created_at'] == null
       ? null

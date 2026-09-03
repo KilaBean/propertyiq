@@ -32,7 +32,9 @@ class PropertyFormScreen extends ConsumerWidget {
   }
 }
 
-const _currencies = ['NGN', 'GHS', 'KES', 'ZAR', 'USD'];
+// GHS first: it's the default (see _currency below, which takes the list's
+// first entry for a new property).
+const _currencies = ['GHS', 'NGN', 'KES', 'ZAR', 'USD'];
 
 class _PropertyForm extends ConsumerStatefulWidget {
   const _PropertyForm({this.initial});
@@ -164,6 +166,8 @@ class _PropertyFormState extends ConsumerState<_PropertyForm> {
                       DropdownMenuItem(value: c, child: Text(c)),
                   ],
                   onChanged: (v) => setState(() => _currency = v ?? _currency),
+                  validator: (v) =>
+                      (v == null || v.isEmpty) ? 'Required' : null,
                 ),
                 const SizedBox(height: 24),
                 FilledButton(

@@ -11,7 +11,7 @@ abstract class Property with _$Property {
     @JsonKey(name: 'manager_id') required String managerId,
     required String name,
     String? address,
-    @Default('NGN') String currency,
+    @Default('GHS') String currency,
     @JsonKey(name: 'photo_path') String? photoPath,
     @JsonKey(name: 'created_at') DateTime? createdAt,
     @JsonKey(name: 'updated_at') DateTime? updatedAt,

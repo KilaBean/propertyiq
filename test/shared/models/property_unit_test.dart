@@ -21,9 +21,9 @@ void main() {
       expect(p.currency, 'GHS');
     });
 
-    test('defaults currency to NGN when absent', () {
+    test('defaults currency to GHS when absent', () {
       final p = Property.fromJson({'id': 'p2', 'manager_id': 'm1', 'name': 'X'});
-      expect(p.currency, 'NGN');
+      expect(p.currency, 'GHS');
       expect(p.address, isNull);
     });
   });

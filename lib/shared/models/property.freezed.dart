@@ -216,7 +216,7 @@ return $default(_that.id,_that.managerId,_that.name,_that.address,_that.currency
 @JsonSerializable()
 
 class _Property implements Property {
-  const _Property({required this.id, @JsonKey(name: 'manager_id') required this.managerId, required this.name, this.address, this.currency = 'NGN', @JsonKey(name: 'photo_path') this.photoPath, @JsonKey(name: 'created_at') this.createdAt, @JsonKey(name: 'updated_at') this.updatedAt});
+  const _Property({required this.id, @JsonKey(name: 'manager_id') required this.managerId, required this.name, this.address, this.currency = 'GHS', @JsonKey(name: 'photo_path') this.photoPath, @JsonKey(name: 'created_at') this.createdAt, @JsonKey(name: 'updated_at') this.updatedAt});
   factory _Property.fromJson(Map<String, dynamic> json) => _$PropertyFromJson(json);
 
 @override final  String id;
