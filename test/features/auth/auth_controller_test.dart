@@ -96,8 +96,11 @@ void main() {
   });
 
   group('AuthController.changePassword', () {
-    test('returns true on success', () async {
+    test('changes the password and clears the must-change flag', () async {
+      // Both, in that order: clearing the flag first would release the router
+      // before the new password actually took.
       when(() => repo.changePassword(any())).thenAnswer((_) async {});
+      when(() => repo.clearMustChangePassword()).thenAnswer((_) async {});
       final container = build();
 
       expect(
@@ -106,7 +109,10 @@ void main() {
             .changePassword('a-new-password'),
         isTrue,
       );
-      verify(() => repo.changePassword('a-new-password')).called(1);
+      verifyInOrder([
+        () => repo.changePassword('a-new-password'),
+        () => repo.clearMustChangePassword(),
+      ]);
     });
 
     test('returns false when the update is rejected', () async {
@@ -120,6 +126,19 @@ void main() {
             .changePassword('abc'),
         isFalse,
       );
+    });
+
+    test('does not clear the flag when the password change fails', () async {
+      // Otherwise a rejected password would still release the gate, leaving the
+      // tenant on the credential their manager knows.
+      when(() => repo.changePassword(any()))
+          .thenThrow(Exception('password too short'));
+      when(() => repo.clearMustChangePassword()).thenAnswer((_) async {});
+      final container = build();
+
+      await container.read(authControllerProvider.notifier).changePassword('x');
+
+      verifyNever(() => repo.clearMustChangePassword());
     });
   });
 

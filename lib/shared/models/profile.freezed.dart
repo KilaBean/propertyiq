@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Profile {
 
- String get id;@JsonKey(name: 'full_name') String get fullName; UserRole get role; String? get phone;@JsonKey(name: 'avatar_path') String? get avatarPath;@JsonKey(name: 'created_at') DateTime? get createdAt;@JsonKey(name: 'updated_at') DateTime? get updatedAt;
+ String get id;@JsonKey(name: 'full_name') String get fullName; UserRole get role; String? get phone;@JsonKey(name: 'avatar_path') String? get avatarPath;@JsonKey(name: 'must_change_password') bool get mustChangePassword;@JsonKey(name: 'created_at') DateTime? get createdAt;@JsonKey(name: 'updated_at') DateTime? get updatedAt;
 /// Create a copy of Profile
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $ProfileCopyWith<Profile> get copyWith => _$ProfileCopyWithImpl<Profile>(this as
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Profile&&(identical(other.id, id) || other.id == id)&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.role, role) || other.role == role)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.avatarPath, avatarPath) || other.avatarPath == avatarPath)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Profile&&(identical(other.id, id) || other.id == id)&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.role, role) || other.role == role)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.avatarPath, avatarPath) || other.avatarPath == avatarPath)&&(identical(other.mustChangePassword, mustChangePassword) || other.mustChangePassword == mustChangePassword)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,fullName,role,phone,avatarPath,createdAt,updatedAt);
+int get hashCode => Object.hash(runtimeType,id,fullName,role,phone,avatarPath,mustChangePassword,createdAt,updatedAt);
 
 @override
 String toString() {
-  return 'Profile(id: $id, fullName: $fullName, role: $role, phone: $phone, avatarPath: $avatarPath, createdAt: $createdAt, updatedAt: $updatedAt)';
+  return 'Profile(id: $id, fullName: $fullName, role: $role, phone: $phone, avatarPath: $avatarPath, mustChangePassword: $mustChangePassword, createdAt: $createdAt, updatedAt: $updatedAt)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $ProfileCopyWith<$Res>  {
   factory $ProfileCopyWith(Profile value, $Res Function(Profile) _then) = _$ProfileCopyWithImpl;
 @useResult
 $Res call({
- String id,@JsonKey(name: 'full_name') String fullName, UserRole role, String? phone,@JsonKey(name: 'avatar_path') String? avatarPath,@JsonKey(name: 'created_at') DateTime? createdAt,@JsonKey(name: 'updated_at') DateTime? updatedAt
+ String id,@JsonKey(name: 'full_name') String fullName, UserRole role, String? phone,@JsonKey(name: 'avatar_path') String? avatarPath,@JsonKey(name: 'must_change_password') bool mustChangePassword,@JsonKey(name: 'created_at') DateTime? createdAt,@JsonKey(name: 'updated_at') DateTime? updatedAt
 });
 
 
@@ -65,14 +65,15 @@ class _$ProfileCopyWithImpl<$Res>
 
 /// Create a copy of Profile
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? fullName = null,Object? role = null,Object? phone = freezed,Object? avatarPath = freezed,Object? createdAt = freezed,Object? updatedAt = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? fullName = null,Object? role = null,Object? phone = freezed,Object? avatarPath = freezed,Object? mustChangePassword = null,Object? createdAt = freezed,Object? updatedAt = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,fullName: null == fullName ? _self.fullName : fullName // ignore: cast_nullable_to_non_nullable
 as String,role: null == role ? _self.role : role // ignore: cast_nullable_to_non_nullable
 as UserRole,phone: freezed == phone ? _self.phone : phone // ignore: cast_nullable_to_non_nullable
 as String?,avatarPath: freezed == avatarPath ? _self.avatarPath : avatarPath // ignore: cast_nullable_to_non_nullable
-as String?,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as String?,mustChangePassword: null == mustChangePassword ? _self.mustChangePassword : mustChangePassword // ignore: cast_nullable_to_non_nullable
+as bool,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,updatedAt: freezed == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,
   ));
@@ -159,10 +160,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id, @JsonKey(name: 'full_name')  String fullName,  UserRole role,  String? phone, @JsonKey(name: 'avatar_path')  String? avatarPath, @JsonKey(name: 'created_at')  DateTime? createdAt, @JsonKey(name: 'updated_at')  DateTime? updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id, @JsonKey(name: 'full_name')  String fullName,  UserRole role,  String? phone, @JsonKey(name: 'avatar_path')  String? avatarPath, @JsonKey(name: 'must_change_password')  bool mustChangePassword, @JsonKey(name: 'created_at')  DateTime? createdAt, @JsonKey(name: 'updated_at')  DateTime? updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Profile() when $default != null:
-return $default(_that.id,_that.fullName,_that.role,_that.phone,_that.avatarPath,_that.createdAt,_that.updatedAt);case _:
+return $default(_that.id,_that.fullName,_that.role,_that.phone,_that.avatarPath,_that.mustChangePassword,_that.createdAt,_that.updatedAt);case _:
   return orElse();
 
 }
@@ -180,10 +181,10 @@ return $default(_that.id,_that.fullName,_that.role,_that.phone,_that.avatarPath,
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id, @JsonKey(name: 'full_name')  String fullName,  UserRole role,  String? phone, @JsonKey(name: 'avatar_path')  String? avatarPath, @JsonKey(name: 'created_at')  DateTime? createdAt, @JsonKey(name: 'updated_at')  DateTime? updatedAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id, @JsonKey(name: 'full_name')  String fullName,  UserRole role,  String? phone, @JsonKey(name: 'avatar_path')  String? avatarPath, @JsonKey(name: 'must_change_password')  bool mustChangePassword, @JsonKey(name: 'created_at')  DateTime? createdAt, @JsonKey(name: 'updated_at')  DateTime? updatedAt)  $default,) {final _that = this;
 switch (_that) {
 case _Profile():
-return $default(_that.id,_that.fullName,_that.role,_that.phone,_that.avatarPath,_that.createdAt,_that.updatedAt);case _:
+return $default(_that.id,_that.fullName,_that.role,_that.phone,_that.avatarPath,_that.mustChangePassword,_that.createdAt,_that.updatedAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -200,10 +201,10 @@ return $default(_that.id,_that.fullName,_that.role,_that.phone,_that.avatarPath,
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id, @JsonKey(name: 'full_name')  String fullName,  UserRole role,  String? phone, @JsonKey(name: 'avatar_path')  String? avatarPath, @JsonKey(name: 'created_at')  DateTime? createdAt, @JsonKey(name: 'updated_at')  DateTime? updatedAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id, @JsonKey(name: 'full_name')  String fullName,  UserRole role,  String? phone, @JsonKey(name: 'avatar_path')  String? avatarPath, @JsonKey(name: 'must_change_password')  bool mustChangePassword, @JsonKey(name: 'created_at')  DateTime? createdAt, @JsonKey(name: 'updated_at')  DateTime? updatedAt)?  $default,) {final _that = this;
 switch (_that) {
 case _Profile() when $default != null:
-return $default(_that.id,_that.fullName,_that.role,_that.phone,_that.avatarPath,_that.createdAt,_that.updatedAt);case _:
+return $default(_that.id,_that.fullName,_that.role,_that.phone,_that.avatarPath,_that.mustChangePassword,_that.createdAt,_that.updatedAt);case _:
   return null;
 
 }
@@ -215,7 +216,7 @@ return $default(_that.id,_that.fullName,_that.role,_that.phone,_that.avatarPath,
 @JsonSerializable()
 
 class _Profile implements Profile {
-  const _Profile({required this.id, @JsonKey(name: 'full_name') this.fullName = '', this.role = UserRole.tenant, this.phone, @JsonKey(name: 'avatar_path') this.avatarPath, @JsonKey(name: 'created_at') this.createdAt, @JsonKey(name: 'updated_at') this.updatedAt});
+  const _Profile({required this.id, @JsonKey(name: 'full_name') this.fullName = '', this.role = UserRole.tenant, this.phone, @JsonKey(name: 'avatar_path') this.avatarPath, @JsonKey(name: 'must_change_password') this.mustChangePassword = false, @JsonKey(name: 'created_at') this.createdAt, @JsonKey(name: 'updated_at') this.updatedAt});
   factory _Profile.fromJson(Map<String, dynamic> json) => _$ProfileFromJson(json);
 
 @override final  String id;
@@ -223,6 +224,7 @@ class _Profile implements Profile {
 @override@JsonKey() final  UserRole role;
 @override final  String? phone;
 @override@JsonKey(name: 'avatar_path') final  String? avatarPath;
+@override@JsonKey(name: 'must_change_password') final  bool mustChangePassword;
 @override@JsonKey(name: 'created_at') final  DateTime? createdAt;
 @override@JsonKey(name: 'updated_at') final  DateTime? updatedAt;
 
@@ -239,16 +241,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Profile&&(identical(other.id, id) || other.id == id)&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.role, role) || other.role == role)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.avatarPath, avatarPath) || other.avatarPath == avatarPath)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Profile&&(identical(other.id, id) || other.id == id)&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.role, role) || other.role == role)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.avatarPath, avatarPath) || other.avatarPath == avatarPath)&&(identical(other.mustChangePassword, mustChangePassword) || other.mustChangePassword == mustChangePassword)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,fullName,role,phone,avatarPath,createdAt,updatedAt);
+int get hashCode => Object.hash(runtimeType,id,fullName,role,phone,avatarPath,mustChangePassword,createdAt,updatedAt);
 
 @override
 String toString() {
-  return 'Profile(id: $id, fullName: $fullName, role: $role, phone: $phone, avatarPath: $avatarPath, createdAt: $createdAt, updatedAt: $updatedAt)';
+  return 'Profile(id: $id, fullName: $fullName, role: $role, phone: $phone, avatarPath: $avatarPath, mustChangePassword: $mustChangePassword, createdAt: $createdAt, updatedAt: $updatedAt)';
 }
 
 
@@ -259,7 +261,7 @@ abstract mixin class _$ProfileCopyWith<$Res> implements $ProfileCopyWith<$Res> {
   factory _$ProfileCopyWith(_Profile value, $Res Function(_Profile) _then) = __$ProfileCopyWithImpl;
 @override @useResult
 $Res call({
- String id,@JsonKey(name: 'full_name') String fullName, UserRole role, String? phone,@JsonKey(name: 'avatar_path') String? avatarPath,@JsonKey(name: 'created_at') DateTime? createdAt,@JsonKey(name: 'updated_at') DateTime? updatedAt
+ String id,@JsonKey(name: 'full_name') String fullName, UserRole role, String? phone,@JsonKey(name: 'avatar_path') String? avatarPath,@JsonKey(name: 'must_change_password') bool mustChangePassword,@JsonKey(name: 'created_at') DateTime? createdAt,@JsonKey(name: 'updated_at') DateTime? updatedAt
 });
 
 
@@ -276,14 +278,15 @@ class __$ProfileCopyWithImpl<$Res>
 
 /// Create a copy of Profile
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? fullName = null,Object? role = null,Object? phone = freezed,Object? avatarPath = freezed,Object? createdAt = freezed,Object? updatedAt = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? fullName = null,Object? role = null,Object? phone = freezed,Object? avatarPath = freezed,Object? mustChangePassword = null,Object? createdAt = freezed,Object? updatedAt = freezed,}) {
   return _then(_Profile(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,fullName: null == fullName ? _self.fullName : fullName // ignore: cast_nullable_to_non_nullable
 as String,role: null == role ? _self.role : role // ignore: cast_nullable_to_non_nullable
 as UserRole,phone: freezed == phone ? _self.phone : phone // ignore: cast_nullable_to_non_nullable
 as String?,avatarPath: freezed == avatarPath ? _self.avatarPath : avatarPath // ignore: cast_nullable_to_non_nullable
-as String?,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as String?,mustChangePassword: null == mustChangePassword ? _self.mustChangePassword : mustChangePassword // ignore: cast_nullable_to_non_nullable
+as bool,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,updatedAt: freezed == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,
   ));

@@ -25,8 +25,8 @@ class TenancyController extends _$TenancyController {
     ref.invalidate(tenantLeaseProvider);
   }
 
-  /// Invites + assigns a tenant. Returns the invite outcome, or null on
-  /// failure.
+  /// Invites + assigns a tenant. Returns the credentials to hand over, or null
+  /// on failure.
   Future<TenantInvite?> assign({
     required String unitId,
     required String tenantEmail,
@@ -106,22 +106,22 @@ class TenancyController extends _$TenancyController {
     return !guarded.hasError;
   }
 
-  /// Emails the tenant a password-reset link. Returns the address it went to,
-  /// or null on failure.
-  Future<String?> sendPasswordReset({
+  /// Generates a new temporary password for the tenant. Returns it to hand
+  /// over, or null on failure.
+  Future<String?> resetPassword({
     required String unitId,
     required String tenantId,
   }) async {
     state = const AsyncLoading();
-    String? email;
+    String? password;
     final guarded = await AsyncValue.guard(() async {
-      email = await _repo.sendTenantPasswordReset(
+      password = await _repo.resetTenantPassword(
         unitId: unitId,
         tenantId: tenantId,
       );
     });
     if (ref.mounted) state = guarded;
-    return guarded.hasError ? null : email;
+    return guarded.hasError ? null : password;
   }
 
   Future<bool> delete(String id) async {

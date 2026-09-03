@@ -34,7 +34,7 @@ void main() {
   }
 
   group('TenancyController.assign', () {
-    test('returns the invite outcome, which carries no password', () async {
+    test('returns the credentials for the manager to hand over', () async {
       when(() => repo.create(
             unitId: any(named: 'unitId'),
             tenantEmail: any(named: 'tenantEmail'),
@@ -48,7 +48,11 @@ void main() {
             startDate: any(named: 'startDate'),
             endDate: any(named: 'endDate'),
           )).thenAnswer(
-        (_) async => const TenantInvite(email: 'ada@example.com', invited: true),
+        (_) async => const TenantInvite(
+          email: 'ada@example.com',
+          password: 'Kp7mQr2xTz9w',
+          invited: true,
+        ),
       );
 
       final container = build();
@@ -70,6 +74,9 @@ void main() {
       expect(invite, isNotNull);
       expect(invite!.email, 'ada@example.com');
       expect(invite.invited, isTrue);
+      // Handed back for the manager to pass on. It only works until the tenant
+      // signs in and replaces it (must_change_password, migration 0017).
+      expect(invite.password, 'Kp7mQr2xTz9w');
     });
 
     test('returns null when the invite fails', () async {
@@ -108,35 +115,35 @@ void main() {
     });
   });
 
-  group('TenancyController.sendPasswordReset', () {
-    test('returns the address the link was sent to', () async {
-      when(() => repo.sendTenantPasswordReset(
+  group('TenancyController.resetPassword', () {
+    test('returns the new password to hand over', () async {
+      when(() => repo.resetTenantPassword(
             unitId: any(named: 'unitId'),
             tenantId: any(named: 'tenantId'),
-          )).thenAnswer((_) async => 'ada@example.com');
+          )).thenAnswer((_) async => 'Kp7mQr2xTz9w');
 
       final container = build();
 
-      final email = await container
+      final password = await container
           .read(tenancyControllerProvider.notifier)
-          .sendPasswordReset(unitId: 'unit-1', tenantId: 'tenant-1');
+          .resetPassword(unitId: 'unit-1', tenantId: 'tenant-1');
 
-      expect(email, 'ada@example.com');
+      expect(password, 'Kp7mQr2xTz9w');
     });
 
-    test('returns null when sending fails', () async {
-      when(() => repo.sendTenantPasswordReset(
+    test('returns null when the reset fails', () async {
+      when(() => repo.resetTenantPassword(
             unitId: any(named: 'unitId'),
             tenantId: any(named: 'tenantId'),
-          )).thenThrow(Exception('smtp down'));
+          )).thenThrow(Exception('not authorized for this tenant'));
 
       final container = build();
 
-      final email = await container
+      final password = await container
           .read(tenancyControllerProvider.notifier)
-          .sendPasswordReset(unitId: 'unit-1', tenantId: 'tenant-1');
+          .resetPassword(unitId: 'unit-1', tenantId: 'tenant-1');
 
-      expect(email, isNull);
+      expect(password, isNull);
     });
   });
 

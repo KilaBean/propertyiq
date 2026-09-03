@@ -13,6 +13,7 @@ void main() {
   setUp(() {
     repo = MockAuthRepository();
     when(() => repo.changePassword(any())).thenAnswer((_) async {});
+    when(() => repo.clearMustChangePassword()).thenAnswer((_) async {});
   });
 
   Future<void> pump(WidgetTester tester) => tester.pumpWidget(

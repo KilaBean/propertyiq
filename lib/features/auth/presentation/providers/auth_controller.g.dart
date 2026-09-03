@@ -42,7 +42,7 @@ final class AuthControllerProvider
   AuthController create() => AuthController();
 }
 
-String _$authControllerHash() => r'ee7e4b2e1420ff43ae1e1da9a3c4fcea59fe118f';
+String _$authControllerHash() => r'e81309fac32c1e18f3546d2fb4e9dbb890b5ac2e';
 
 /// Drives the sign-in / sign-up / sign-out actions and exposes their
 /// loading / error state to the screens via [AsyncValue]. It holds no data —

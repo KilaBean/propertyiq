@@ -54,6 +54,14 @@ class AuthRepository {
   Future<void> changePassword(String newPassword) =>
       _client.auth.updateUser(UserAttributes(password: newPassword));
 
+  /// Clears `profiles.must_change_password` after a successful change.
+  ///
+  /// Goes through a definer RPC because the client has no UPDATE grant on that
+  /// column (migration 0017) — otherwise a tenant could clear the flag without
+  /// ever replacing the password their manager knows.
+  Future<void> clearMustChangePassword() =>
+      _client.rpc('clear_must_change_password');
+
   Future<Profile?> fetchProfile(String userId) async {
     final data = await _client
         .from('profiles')

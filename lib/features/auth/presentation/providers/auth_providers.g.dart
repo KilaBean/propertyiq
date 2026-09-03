@@ -99,33 +99,60 @@ final class SessionProvider
 
 String _$sessionHash() => r'cdad50bd2fda6dd662e70912f7b6dad2105102b6';
 
-/// True while the user arrived via an invite or password-recovery deep link and
-/// has not yet chosen a password.
+/// True while the signed-in user is still on a password somebody else chose,
+/// and so must replace it before going anywhere.
 ///
-/// `supabase_flutter` establishes a real session from that link, so without
-/// this flag an invited tenant would land straight in the app holding a
-/// credential they never chose. The router pins them to `/set-password` until
-/// [resolve] is called.
+/// Two sources, because there are two ways in:
+///
+///  * `profiles.must_change_password` — the normal path. A manager generates a
+///    tenant's password and hands it over, so the manager knows it. The flag is
+///    raised at account creation (and on a manager-initiated reset) and cleared
+///    once the tenant picks their own, which bounds the manager's access to
+///    that account at the tenant's first sign-in.
+///  * `AuthChangeEvent.passwordRecovery` — only fires if email recovery is
+///    enabled later. Harmless to keep, and means the screen already works if
+///    SMTP is switched on.
+///
+/// [resolve] is the local override, so the router releases immediately after a
+/// successful change rather than waiting on a profile refetch.
 
 @ProviderFor(PasswordRecovery)
 final passwordRecoveryProvider = PasswordRecoveryProvider._();
 
-/// True while the user arrived via an invite or password-recovery deep link and
-/// has not yet chosen a password.
+/// True while the signed-in user is still on a password somebody else chose,
+/// and so must replace it before going anywhere.
 ///
-/// `supabase_flutter` establishes a real session from that link, so without
-/// this flag an invited tenant would land straight in the app holding a
-/// credential they never chose. The router pins them to `/set-password` until
-/// [resolve] is called.
+/// Two sources, because there are two ways in:
+///
+///  * `profiles.must_change_password` — the normal path. A manager generates a
+///    tenant's password and hands it over, so the manager knows it. The flag is
+///    raised at account creation (and on a manager-initiated reset) and cleared
+///    once the tenant picks their own, which bounds the manager's access to
+///    that account at the tenant's first sign-in.
+///  * `AuthChangeEvent.passwordRecovery` — only fires if email recovery is
+///    enabled later. Harmless to keep, and means the screen already works if
+///    SMTP is switched on.
+///
+/// [resolve] is the local override, so the router releases immediately after a
+/// successful change rather than waiting on a profile refetch.
 final class PasswordRecoveryProvider
     extends $NotifierProvider<PasswordRecovery, bool> {
-  /// True while the user arrived via an invite or password-recovery deep link and
-  /// has not yet chosen a password.
+  /// True while the signed-in user is still on a password somebody else chose,
+  /// and so must replace it before going anywhere.
   ///
-  /// `supabase_flutter` establishes a real session from that link, so without
-  /// this flag an invited tenant would land straight in the app holding a
-  /// credential they never chose. The router pins them to `/set-password` until
-  /// [resolve] is called.
+  /// Two sources, because there are two ways in:
+  ///
+  ///  * `profiles.must_change_password` — the normal path. A manager generates a
+  ///    tenant's password and hands it over, so the manager knows it. The flag is
+  ///    raised at account creation (and on a manager-initiated reset) and cleared
+  ///    once the tenant picks their own, which bounds the manager's access to
+  ///    that account at the tenant's first sign-in.
+  ///  * `AuthChangeEvent.passwordRecovery` — only fires if email recovery is
+  ///    enabled later. Harmless to keep, and means the screen already works if
+  ///    SMTP is switched on.
+  ///
+  /// [resolve] is the local override, so the router releases immediately after a
+  /// successful change rather than waiting on a profile refetch.
   PasswordRecoveryProvider._()
     : super(
         from: null,
@@ -153,15 +180,24 @@ final class PasswordRecoveryProvider
   }
 }
 
-String _$passwordRecoveryHash() => r'2316cb01aea9d5ba38001eb2ecb91ecbc7ec993b';
+String _$passwordRecoveryHash() => r'37cead6a3c7a1a910768a228d8837d18d1a5ad51';
 
-/// True while the user arrived via an invite or password-recovery deep link and
-/// has not yet chosen a password.
+/// True while the signed-in user is still on a password somebody else chose,
+/// and so must replace it before going anywhere.
 ///
-/// `supabase_flutter` establishes a real session from that link, so without
-/// this flag an invited tenant would land straight in the app holding a
-/// credential they never chose. The router pins them to `/set-password` until
-/// [resolve] is called.
+/// Two sources, because there are two ways in:
+///
+///  * `profiles.must_change_password` — the normal path. A manager generates a
+///    tenant's password and hands it over, so the manager knows it. The flag is
+///    raised at account creation (and on a manager-initiated reset) and cleared
+///    once the tenant picks their own, which bounds the manager's access to
+///    that account at the tenant's first sign-in.
+///  * `AuthChangeEvent.passwordRecovery` — only fires if email recovery is
+///    enabled later. Harmless to keep, and means the screen already works if
+///    SMTP is switched on.
+///
+/// [resolve] is the local override, so the router releases immediately after a
+/// successful change rather than waiting on a profile refetch.
 
 abstract class _$PasswordRecovery extends $Notifier<bool> {
   bool build();

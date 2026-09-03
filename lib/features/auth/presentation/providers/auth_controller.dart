@@ -56,10 +56,18 @@ class AuthController extends _$AuthController {
     return !guarded.hasError;
   }
 
+  /// Changes the password and, on success, clears the must-change flag so the
+  /// router stops pinning the user to the set-password screen.
   Future<bool> changePassword(String newPassword) async {
     state = const AsyncLoading();
-    final guarded = await AsyncValue.guard(() => _repo.changePassword(newPassword));
-    if (ref.mounted) state = guarded;
+    final guarded = await AsyncValue.guard(() async {
+      await _repo.changePassword(newPassword);
+      await _repo.clearMustChangePassword();
+    });
+    if (ref.mounted) {
+      state = guarded;
+      if (!guarded.hasError) ref.invalidate(currentProfileProvider);
+    }
     return !guarded.hasError;
   }
 

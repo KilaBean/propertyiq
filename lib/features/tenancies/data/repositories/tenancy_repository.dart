@@ -10,14 +10,21 @@ part 'tenancy_repository.g.dart';
 
 /// Result of inviting a tenant.
 ///
-/// There is deliberately no password here: the tenant sets their own from the
-/// emailed invite link, so nothing in this app ever holds their credential.
-/// [invited] is false when the address already had an account, in which case it
-/// was simply linked to the tenancy and no email was sent.
+/// [password] is the generated temporary password for the manager to hand over.
+/// It is null when the address already had an account, since an existing
+/// password cannot be read and must not be reset behind the tenant's back.
+///
+/// The account is flagged `must_change_password`, so this credential stops
+/// working the moment the tenant first signs in and picks their own.
 class TenantInvite {
-  const TenantInvite({required this.email, required this.invited});
+  const TenantInvite({
+    required this.email,
+    required this.password,
+    required this.invited,
+  });
 
   final String email;
+  final String? password;
   final bool invited;
 }
 
@@ -37,9 +44,9 @@ class TenancyRepository {
       .order('created_at')
       .map((rows) => rows.map(Tenancy.fromJson).toList());
 
-  /// Invites the tenant (sends the invite email) and creates the tenancy, all
-  /// via the `invite-tenant` Edge Function. Tenants are never self-registered,
-  /// so assignment always goes through the invite.
+  /// Creates the tenant's account and the tenancy via the `invite-tenant` Edge
+  /// Function, returning credentials for the manager to hand over. Tenants are
+  /// never self-registered, so assignment always goes through this.
   Future<TenantInvite> create({
     required String unitId,
     required String tenantEmail,
@@ -69,6 +76,7 @@ class TenancyRepository {
     final data = (res.data as Map).cast<String, dynamic>();
     return TenantInvite(
       email: tenantEmail,
+      password: data['password'] as String?,
       invited: data['invited'] == true,
     );
   }
@@ -100,10 +108,10 @@ class TenancyRepository {
     await _client.from(_table).update({'status': 'ended'}).eq('id', id);
   }
 
-  /// Emails a password-reset link to the tenant on a unit the manager owns
-  /// (via the `reset-tenant-password` function). Returns the address it was
-  /// sent to. No password is generated or returned — the tenant sets their own.
-  Future<String?> sendTenantPasswordReset({
+  /// Generates a new temporary password for the tenant on a unit the manager
+  /// owns (via the `reset-tenant-password` function) and returns it to hand
+  /// over. The tenant is required to replace it at their next sign-in.
+  Future<String?> resetTenantPassword({
     required String unitId,
     required String tenantId,
   }) async {
@@ -112,7 +120,7 @@ class TenancyRepository {
       'tenantId': tenantId,
     });
     final data = (res.data as Map).cast<String, dynamic>();
-    return data['emailSent'] == true ? data['email'] as String? : null;
+    return data['password'] as String?;
   }
 
   Future<void> delete(String id) async {

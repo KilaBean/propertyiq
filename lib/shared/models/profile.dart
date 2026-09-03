@@ -15,6 +15,11 @@ abstract class Profile with _$Profile {
     @Default(UserRole.tenant) UserRole role,
     String? phone,
     @JsonKey(name: 'avatar_path') String? avatarPath,
+    // True while the user is still on a password their manager generated for
+    // them. The router pins them to /set-password until they replace it.
+    @JsonKey(name: 'must_change_password')
+    @Default(false)
+    bool mustChangePassword,
     @JsonKey(name: 'created_at') DateTime? createdAt,
     @JsonKey(name: 'updated_at') DateTime? updatedAt,
   }) = _Profile;

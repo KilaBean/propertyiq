@@ -1,36 +1,32 @@
 // PropertyIQ — invite a tenant (manager-only).
 //
-// Sends the tenant a Supabase invite email and creates the tenancy. Tenants
-// never self-register; only a manager who owns the unit can invite, enforced
-// via manages_unit() before any account is created.
+// Creates the tenant's auth account with a generated temporary password (email
+// pre-confirmed so they can sign in immediately) and returns it for the manager
+// to hand over. Then creates the tenancy. Tenants never self-register; only a
+// manager who owns the unit can invite, enforced via manages_unit() before any
+// account is created.
 //
-// This function deliberately never produces a password. The earlier version
-// generated a temporary one and returned it for the manager to pass along,
-// which meant the manager permanently held a working credential for their
-// tenant's account — enough to sign in as them and read their maintenance
-// history, with nothing in the audit trail. The tenant now sets their own
-// password from the emailed link and is the only party who ever knows it.
+// Why a generated password rather than an emailed invite: tenants are onboarded
+// in person, and this path needs no SMTP, no verified sending domain, and no
+// deep-link token exchange. See docs/tenant-invites.md.
 //
-// Requires: SMTP configured on the project (the built-in sender is rate
-// limited and not suitable for production) and INVITE_REDIRECT_URL pointing at
-// a deep link the app handles. See docs/tenant-invites.md.
+// The account is created with must_change_password, so the password below stops
+// working the moment the tenant first signs in and chooses their own. That is
+// what keeps the manager from holding a working credential indefinitely — do
+// not remove it without reading the note in that document.
 //
 // Input:  { unitId, email, fullName?, phone?, rentAmount?, rentCycle?,
 //           startDate?, endDate?, utilityAmount?, depositAmount?,
 //           emergencyContact? }
-// Output: { ok, invited, email }
-//         invited=true  -> an invite email was sent to a new account
-//         invited=false -> the address already had an account; it was linked to
-//                          the tenancy and no email was sent
+// Output: { ok, invited, email, password }
+//         password is null when the address already had an account (we cannot
+//         read an existing one, and must not reset it behind the tenant's back)
 
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
-// Where the emailed invite link lands. Unset in local dev falls back to the
-// project's Site URL, configured in the Supabase dashboard.
-const INVITE_REDIRECT_URL = Deno.env.get("INVITE_REDIRECT_URL") ?? undefined;
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -46,14 +42,18 @@ function json(obj: unknown, status = 200): Response {
   });
 }
 
-// Deliberately permissive — the address only has to be deliverable, and the
-// invite email failing is a better signal than a regex arguing with the user.
-const EMAIL_RE = /^[^@\s]+@[^@\s.]+\.[^@\s]+$/;
-
-function isAlreadyRegistered(message: string | undefined): boolean {
-  const m = (message ?? "").toLowerCase();
-  return m.includes("already") || m.includes("registered") || m.includes("exists");
+// Readable temp password: no ambiguous glyphs, because this gets read aloud or
+// written on paper. crypto.getRandomValues, not Math.random.
+function generatePassword(len = 12): string {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789";
+  const buf = new Uint32Array(len);
+  crypto.getRandomValues(buf);
+  let out = "";
+  for (let i = 0; i < len; i++) out += chars[buf[i] % chars.length];
+  return out;
 }
+
+const EMAIL_RE = /^[^@\s]+@[^@\s.]+\.[^@\s]+$/;
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
@@ -99,31 +99,43 @@ Deno.serve(async (req) => {
     return json({ error: "not authorized for this unit" }, 403);
   }
 
-  // Admin context — send the invite. The tenant sets their own password from
-  // the emailed link; nothing here ever sees it.
   const admin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
-
+  const password = generatePassword();
   let invited = false;
-  // Only set when THIS request created the account, so rollback below can never
-  // delete a pre-existing user.
+  let returnedPassword: string | null = null;
+  // Only set when THIS request created the account, so the rollback below can
+  // never delete a pre-existing user.
   let createdUserId: string | null = null;
 
-  const { data: inviteData, error: inviteErr } = await admin.auth.admin
-    .inviteUserByEmail(email, {
-      data: { role: "tenant", full_name: fullName, phone },
-      redirectTo: INVITE_REDIRECT_URL,
-    });
+  const { data: created, error: createErr } = await admin.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: true,
+    user_metadata: {
+      role: "tenant",
+      full_name: fullName,
+      phone,
+      // Read by handle_new_user (migration 0017). Without this the generated
+      // password would keep working for as long as the tenant never changed it.
+      must_change_password: true,
+    },
+  });
 
-  if (inviteErr) {
-    if (!isAlreadyRegistered(inviteErr.message)) {
-      console.error("inviteUserByEmail error", inviteErr);
-      return json({ error: inviteErr.message }, 400);
+  if (createErr) {
+    const msg = (createErr.message ?? "").toLowerCase();
+    const alreadyExists = msg.includes("already") ||
+      msg.includes("registered") || msg.includes("exists");
+    if (!alreadyExists) {
+      console.error("createUser error", createErr);
+      return json({ error: createErr.message }, 400);
     }
-    // Already has an account — link them to the tenancy without emailing.
-    // create_tenancy resolves the existing auth user by email.
+    // Already has an account — link them to the tenancy and leave their
+    // password alone. Resetting it here would lock out a tenant who is already
+    // using the app, purely because a manager added them to a second unit.
   } else {
     invited = true;
-    createdUserId = inviteData?.user?.id ?? null;
+    returnedPassword = password;
+    createdUserId = created?.user?.id ?? null;
   }
 
   // Create the tenancy as the manager (re-checks manages_unit, links by email).
@@ -141,21 +153,19 @@ Deno.serve(async (req) => {
 
   if (tErr) {
     console.error("create_tenancy error", tErr);
-    // Roll back the account this request created, otherwise a failed tenancy
-    // leaves an orphaned auth user: the address is now "already registered",
-    // so every retry takes the branch above and the tenant never gets an
-    // invite email.
+    // Roll back the account this request created. Without this the address
+    // reads as "already registered" on every retry, so the tenant would never
+    // get a password and the manager could never complete the assignment.
     if (createdUserId) {
       const { error: rollbackErr } = await admin.auth.admin.deleteUser(
         createdUserId,
       );
       if (rollbackErr) {
-        // Surfaced for operator cleanup — the tenancy failed either way.
         console.error("rollback deleteUser failed", createdUserId, rollbackErr);
       }
     }
     return json({ error: tErr.message }, 400);
   }
 
-  return json({ ok: true, invited, email }, 200);
+  return json({ ok: true, invited, email, password: returnedPassword }, 200);
 });
