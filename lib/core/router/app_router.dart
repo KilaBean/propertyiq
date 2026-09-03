@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -29,6 +30,24 @@ import 'redirect_logic.dart';
 
 part 'app_router.g.dart';
 
+/// A fade transition for every route. Nothing customized this before, so
+/// every push and every bottom-nav tab switch was an instant cut; CLAUDE.md's
+/// MOTION section calls for 150-250ms fade/slide/scale, never a hard cut.
+/// Fade rather than the platform-default slide: it reads as calmer across a
+/// bottom-nav app where most navigation is lateral (tabs), not a strict
+/// forward/back stack.
+CustomTransitionPage<void> _fadePage(Widget child, GoRouterState state) {
+  return CustomTransitionPage<void>(
+    key: state.pageKey,
+    child: child,
+    transitionDuration: const Duration(milliseconds: 200),
+    reverseTransitionDuration: const Duration(milliseconds: 200),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      return FadeTransition(opacity: animation, child: child);
+    },
+  );
+}
+
 /// The app's GoRouter. Auth + role gating live entirely in [resolveRedirect];
 /// the router just re-evaluates it whenever the session or profile changes.
 @riverpod
@@ -49,19 +68,20 @@ GoRouter goRouter(Ref ref) {
     routes: [
       GoRoute(
         path: AppRoutes.splash,
-        builder: (_, _) => const SplashScreen(),
+        pageBuilder: (_, state) => _fadePage(const SplashScreen(), state),
       ),
       GoRoute(
         path: AppRoutes.login,
-        builder: (_, _) => const LoginScreen(),
+        pageBuilder: (_, state) => _fadePage(const LoginScreen(), state),
       ),
       GoRoute(
         path: AppRoutes.signup,
-        builder: (_, _) => const SignupScreen(),
+        pageBuilder: (_, state) => _fadePage(const SignupScreen(), state),
       ),
       GoRoute(
         path: AppRoutes.setPassword,
-        builder: (_, _) => const SetPasswordScreen(),
+        pageBuilder: (_, state) =>
+            _fadePage(const SetPasswordScreen(), state),
       ),
       // Tab roots — wrapped in the persistent bottom-nav shell.
       ShellRoute(
@@ -69,100 +89,130 @@ GoRouter goRouter(Ref ref) {
         routes: [
           GoRoute(
             path: AppRoutes.dashboard,
-            builder: (_, _) => const DashboardScreen(),
+            pageBuilder: (_, state) =>
+                _fadePage(const DashboardScreen(), state),
           ),
           GoRoute(
             path: AppRoutes.properties,
-            builder: (_, _) => const PropertiesListScreen(),
+            pageBuilder: (_, state) =>
+                _fadePage(const PropertiesListScreen(), state),
           ),
           GoRoute(
             path: AppRoutes.maintenance,
-            builder: (_, _) => const ManagerMaintenanceListScreen(),
+            pageBuilder: (_, state) =>
+                _fadePage(const ManagerMaintenanceListScreen(), state),
           ),
           GoRoute(
             path: AppRoutes.myUnit,
-            builder: (_, _) => const MyUnitScreen(),
+            pageBuilder: (_, state) => _fadePage(const MyUnitScreen(), state),
           ),
           GoRoute(
             path: AppRoutes.tenantMaintenance,
-            builder: (_, _) => const TenantMaintenanceListScreen(),
+            pageBuilder: (_, state) =>
+                _fadePage(const TenantMaintenanceListScreen(), state),
           ),
           GoRoute(
             path: AppRoutes.tenantPayments,
-            builder: (_, _) => const RentPaymentScreen(),
+            pageBuilder: (_, state) =>
+                _fadePage(const RentPaymentScreen(), state),
           ),
           GoRoute(
             path: AppRoutes.profile,
-            builder: (_, _) => const ProfileScreen(),
+            pageBuilder: (_, state) => _fadePage(const ProfileScreen(), state),
           ),
         ],
       ),
       // Full-screen routes pushed over the shell.
       GoRoute(
         path: AppRoutes.propertyNew,
-        builder: (_, _) => const PropertyFormScreen(),
+        pageBuilder: (_, state) =>
+            _fadePage(const PropertyFormScreen(), state),
       ),
       GoRoute(
         path: '/properties/:id',
-        builder: (_, state) =>
-            PropertyDetailScreen(propertyId: state.pathParameters['id']!),
+        pageBuilder: (_, state) => _fadePage(
+          PropertyDetailScreen(propertyId: state.pathParameters['id']!),
+          state,
+        ),
       ),
       GoRoute(
         path: '/properties/:id/edit',
-        builder: (_, state) =>
-            PropertyFormScreen(propertyId: state.pathParameters['id']!),
+        pageBuilder: (_, state) => _fadePage(
+          PropertyFormScreen(propertyId: state.pathParameters['id']!),
+          state,
+        ),
       ),
       GoRoute(
         path: '/properties/:id/units/new',
-        builder: (_, state) =>
-            UnitFormScreen(propertyId: state.pathParameters['id']!),
+        pageBuilder: (_, state) => _fadePage(
+          UnitFormScreen(propertyId: state.pathParameters['id']!),
+          state,
+        ),
       ),
       GoRoute(
         path: '/properties/:id/units/edit',
-        builder: (_, state) => UnitFormScreen(
-          propertyId: state.pathParameters['id']!,
-          initial: state.extra as Unit?,
+        pageBuilder: (_, state) => _fadePage(
+          UnitFormScreen(
+            propertyId: state.pathParameters['id']!,
+            initial: state.extra as Unit?,
+          ),
+          state,
         ),
       ),
       GoRoute(
         path: '/properties/:id/units/:unitId',
-        builder: (_, state) => UnitDetailScreen(
-          propertyId: state.pathParameters['id']!,
-          unitId: state.pathParameters['unitId']!,
+        pageBuilder: (_, state) => _fadePage(
+          UnitDetailScreen(
+            propertyId: state.pathParameters['id']!,
+            unitId: state.pathParameters['unitId']!,
+          ),
+          state,
         ),
       ),
       GoRoute(
         path: '/properties/:id/units/:unitId/tenancy/new',
-        builder: (_, state) =>
-            TenancyFormScreen(unitId: state.pathParameters['unitId']!),
+        pageBuilder: (_, state) => _fadePage(
+          TenancyFormScreen(unitId: state.pathParameters['unitId']!),
+          state,
+        ),
       ),
       GoRoute(
         path: '/properties/:id/units/:unitId/tenancy/edit',
-        builder: (_, state) => TenancyFormScreen(
-          unitId: state.pathParameters['unitId']!,
-          initial: state.extra as Tenancy?,
+        pageBuilder: (_, state) => _fadePage(
+          TenancyFormScreen(
+            unitId: state.pathParameters['unitId']!,
+            initial: state.extra as Tenancy?,
+          ),
+          state,
         ),
       ),
       GoRoute(
         path: AppRoutes.tenantProfile,
-        builder: (_, state) =>
-            TenantProfileScreen(args: state.extra! as TenantProfileArgs),
+        pageBuilder: (_, state) => _fadePage(
+          TenantProfileScreen(args: state.extra! as TenantProfileArgs),
+          state,
+        ),
       ),
       // Maintenance detail (manager) — full screen over the shell.
       GoRoute(
         path: '/maintenance/:id',
-        builder: (_, state) =>
-            MaintenanceDetailScreen(requestId: state.pathParameters['id']!),
+        pageBuilder: (_, state) => _fadePage(
+          MaintenanceDetailScreen(requestId: state.pathParameters['id']!),
+          state,
+        ),
       ),
       // Maintenance — tenant. `new` before `:id`.
       GoRoute(
         path: AppRoutes.tenantMaintenanceNew,
-        builder: (_, _) => const MaintenanceFormScreen(),
+        pageBuilder: (_, state) =>
+            _fadePage(const MaintenanceFormScreen(), state),
       ),
       GoRoute(
         path: '/my-unit/maintenance/:id',
-        builder: (_, state) =>
-            MaintenanceDetailScreen(requestId: state.pathParameters['id']!),
+        pageBuilder: (_, state) => _fadePage(
+          MaintenanceDetailScreen(requestId: state.pathParameters['id']!),
+          state,
+        ),
       ),
     ],
   );

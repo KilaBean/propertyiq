@@ -10,6 +10,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// will land; not worth a bespoke shape for most one-off detail screens, so
 /// the spinner stays the default rather than something every call site has
 /// to opt out of.
+///
+/// Cross-fades between states (150-250ms per CLAUDE.md's MOTION section)
+/// rather than cutting. The fade is keyed on which branch actually ran, not
+/// on `value`'s own type: `skipLoadingOnReload`/`skipLoadingOnRefresh` route
+/// a reload-with-previous-data through `data` while `value` is technically
+/// still an `AsyncLoading` underneath, so keying on the raw type would fade
+/// every time a background refresh finishes even though the same content was
+/// on screen the whole time — exactly the "flashy" motion CLAUDE.md says to
+/// avoid, on the one path (pull-to-refresh, realtime updates) where it would
+/// fire constantly.
 class AsyncValueView<T> extends StatelessWidget {
   const AsyncValueView({
     super.key,
@@ -26,14 +36,27 @@ class AsyncValueView<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return value.when(
+    late final String kind;
+    final child = value.when(
       skipLoadingOnReload: true,
       skipLoadingOnRefresh: true,
-      data: data,
-      loading: () =>
-          loading?.call(context) ??
-          const Center(child: CircularProgressIndicator()),
-      error: (error, _) => _ErrorView(message: '$error', onRetry: onRetry),
+      data: (v) {
+        kind = 'data';
+        return data(v);
+      },
+      loading: () {
+        kind = 'loading';
+        return loading?.call(context) ??
+            const Center(child: CircularProgressIndicator());
+      },
+      error: (error, _) {
+        kind = 'error';
+        return _ErrorView(message: '$error', onRetry: onRetry);
+      },
+    );
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 200),
+      child: KeyedSubtree(key: ValueKey(kind), child: child),
     );
   }
 }
