@@ -6,6 +6,7 @@ import '../../../../core/layout/breakpoints.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/widgets/async_value_view.dart';
 import '../../../../core/widgets/empty_state.dart';
+import '../../../../core/widgets/loading_skeleton.dart';
 import '../../../../core/widgets/property_card.dart';
 import '../providers/property_providers.dart';
 
@@ -37,6 +38,7 @@ class PropertiesListScreen extends ConsumerWidget {
               child: AsyncValueView(
                 value: properties,
                 onRetry: () => ref.invalidate(propertiesListProvider),
+                loading: (_) => const ListSkeleton(),
                 data: (items) {
                   if (items.isEmpty) {
                     return EmptyState(

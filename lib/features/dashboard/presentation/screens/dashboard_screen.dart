@@ -6,6 +6,7 @@ import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/async_value_view.dart';
+import '../../../../core/widgets/loading_skeleton.dart';
 import '../../../../core/widgets/metric_card.dart';
 import '../../../../core/widgets/profile_top_bar.dart';
 import '../../../../core/widgets/round_icon_button.dart';
@@ -51,6 +52,7 @@ class DashboardScreen extends ConsumerWidget {
                 value: stats,
                 onRetry: () => ref.invalidate(dashboardStatsProvider),
                 data: (s) => _Metrics(stats: s),
+                loading: (_) => const _MetricsSkeleton(),
               ),
               const SizedBox(height: 16),
               const OccupancyRateCard(),
@@ -228,21 +230,37 @@ class _Metrics extends StatelessWidget {
       ),
     ];
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final columns = constraints.maxWidth > 600 ? 4 : 2;
-        return GridView(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: columns,
-            mainAxisSpacing: 12,
-            crossAxisSpacing: 12,
-            mainAxisExtent: 132,
-          ),
-          children: cards,
-        );
-      },
-    );
+    return _metricsGrid(cards);
+  }
+}
+
+// Shared by _Metrics and _MetricsSkeleton so the loading state occupies
+// exactly the layout the real cards will land in -- swapping one for the
+// other shouldn't visibly reflow the page.
+Widget _metricsGrid(List<Widget> children) {
+  return LayoutBuilder(
+    builder: (context, constraints) {
+      final columns = constraints.maxWidth > 600 ? 4 : 2;
+      return GridView(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: columns,
+          mainAxisSpacing: 12,
+          crossAxisSpacing: 12,
+          mainAxisExtent: 132,
+        ),
+        children: children,
+      );
+    },
+  );
+}
+
+class _MetricsSkeleton extends StatelessWidget {
+  const _MetricsSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return _metricsGrid(List.generate(4, (_) => const MetricCardSkeleton()));
   }
 }

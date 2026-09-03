@@ -6,6 +6,7 @@ import '../../../../core/layout/breakpoints.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/widgets/async_value_view.dart';
 import '../../../../core/widgets/empty_state.dart';
+import '../../../../core/widgets/loading_skeleton.dart';
 import '../providers/maintenance_providers.dart';
 import '../widgets/maintenance_chips.dart';
 
@@ -72,6 +73,7 @@ class _TenantMaintenanceListScreenState
                 child: AsyncValueView(
                   value: requests,
                   onRetry: () => ref.invalidate(tenantRequestsProvider),
+                  loading: (_) => const ListSkeleton(hasLeading: false),
                   data: (page) {
                     if (page.items.isEmpty) {
                       return ListView(

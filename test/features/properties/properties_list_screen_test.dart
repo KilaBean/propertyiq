@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:propertyiq/core/layout/breakpoints.dart';
 import 'package:propertyiq/core/theme/app_theme.dart';
+import 'package:propertyiq/core/widgets/loading_skeleton.dart';
 import 'package:propertyiq/core/widgets/property_card.dart';
 import 'package:propertyiq/features/properties/presentation/providers/property_providers.dart';
 import 'package:propertyiq/features/properties/presentation/screens/properties_list_screen.dart';
@@ -27,12 +28,12 @@ Widget _app(Stream<List<Property>> stream) => ProviderScope(
     );
 
 void main() {
-  testWidgets('shows a spinner while the stream has not emitted',
+  testWidgets('shows a loading skeleton while the stream has not emitted',
       (tester) async {
     await tester.pumpWidget(_app(const Stream<List<Property>>.empty()));
     await tester.pump();
 
-    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    expect(find.byType(ListSkeleton), findsOneWidget);
   });
 
   testWidgets('shows the empty state with a call to action', (tester) async {
