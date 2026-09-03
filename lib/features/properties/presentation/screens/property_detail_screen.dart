@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/widgets/async_value_view.dart';
 import '../../../../core/widgets/empty_state.dart';
+import '../../../../core/widgets/signed_network_image.dart';
 import '../../../../core/widgets/unit_card.dart';
 import '../../../../shared/models/property.dart';
 import '../../../units/presentation/providers/unit_providers.dart';
@@ -185,11 +186,14 @@ class _PhotoBanner extends ConsumerWidget {
       height: 160,
       width: double.infinity,
       child: url.when(
-        data: (u) => Image.network(
-          u,
-          fit: BoxFit.cover,
-          errorBuilder: (_, _, _) =>
-              Container(color: scheme.surfaceContainerHighest),
+        data: (u) => SignedNetworkImage(
+          url: u,
+          cacheKey: path,
+          // Width is unbounded (double.infinity) here, so only the fixed
+          // height constrains the decode -- still far short of the original,
+          // which is what actually matters.
+          displayHeight: 160,
+          errorWidget: Container(color: scheme.surfaceContainerHighest),
         ),
         loading: () => Container(color: scheme.surfaceContainerHighest),
         error: (_, _) => Container(color: scheme.surfaceContainerHighest),

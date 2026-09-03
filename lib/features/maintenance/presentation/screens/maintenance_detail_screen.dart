@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/async_value_view.dart';
 import '../../../../core/widgets/info_card.dart';
+import '../../../../core/widgets/signed_network_image.dart';
 import '../../../../shared/models/maintenance_status.dart';
 import '../../../../shared/models/user_role.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
@@ -159,17 +160,19 @@ class _Thumb extends ConsumerWidget {
       button: true,
       label: 'Attached photo. Activate to view full screen.',
       child: GestureDetector(
-        onTap: () => url.whenData((u) => _openViewer(context, u)),
+        onTap: () => url.whenData((u) => _openViewer(context, u, path)),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(12),
           child: SizedBox(
             width: 88,
             height: 88,
             child: url.when(
-              data: (u) => Image.network(
-                u,
-                fit: BoxFit.cover,
-                errorBuilder: (_, _, _) => Container(
+              data: (u) => SignedNetworkImage(
+                url: u,
+                cacheKey: path,
+                displayWidth: 88,
+                displayHeight: 88,
+                errorWidget: Container(
                   color: scheme.surfaceContainerHighest,
                   child: const Icon(Icons.broken_image_outlined),
                 ),
@@ -186,7 +189,7 @@ class _Thumb extends ConsumerWidget {
     );
   }
 
-  void _openViewer(BuildContext context, String url) {
+  void _openViewer(BuildContext context, String url, String path) {
     showDialog<void>(
       context: context,
       builder: (_) => Dialog(
@@ -195,7 +198,9 @@ class _Thumb extends ConsumerWidget {
         child: InteractiveViewer(
           child: ClipRRect(
             borderRadius: BorderRadius.circular(16),
-            child: Image.network(url),
+            // No displayWidth/Height -- this is the full-resolution viewer,
+            // so the point is to decode at full size, not a thumbnail size.
+            child: SignedNetworkImage(url: url, cacheKey: path),
           ),
         ),
       ),

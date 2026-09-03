@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../../../core/utils/error_messages.dart';
 import '../../../../core/widgets/async_value_view.dart';
+import '../../../../core/widgets/signed_network_image.dart';
 import '../../../../shared/models/property.dart';
 import '../providers/property_controller.dart';
 import '../providers/property_providers.dart';
@@ -205,7 +206,14 @@ class _PhotoPicker extends ConsumerWidget {
     } else if (existingPath != null && existingPath!.isNotEmpty) {
       final url = ref.watch(propertyPhotoUrlProvider(existingPath!));
       content = url.when(
-        data: (u) => Image.network(u, fit: BoxFit.cover),
+        data: (u) => SignedNetworkImage(
+          url: u,
+          cacheKey: existingPath!,
+          // Width is unbounded here too (the container is
+          // double.infinity-wide); the fixed 140 height below is what
+          // actually bounds the decode.
+          displayHeight: 140,
+        ),
         loading: () => Container(color: scheme.surfaceContainerHighest),
         error: (_, _) => Icon(Icons.broken_image_outlined,
             color: scheme.onSurfaceVariant),

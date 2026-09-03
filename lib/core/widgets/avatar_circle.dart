@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../features/auth/presentation/providers/auth_providers.dart';
+import 'signed_network_image.dart';
 
 /// A circular avatar that shows the user's uploaded photo (via a signed URL)
 /// when [avatarPath] is set, falling back to their initials otherwise — used
@@ -48,11 +49,16 @@ class _NetworkOrInitials extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final url = ref.watch(avatarUrlProvider(path));
+    // The size actually painted here is the CircleAvatar's diameter, set by
+    // the parent -- but that isn't known inside this widget, so fall back to
+    // a size generous enough for any radius this app actually uses.
     return url.when(
-      data: (u) => Image.network(
-        u,
-        fit: BoxFit.cover,
-        errorBuilder: (_, _, _) => _Initials(name: name),
+      data: (u) => SignedNetworkImage(
+        url: u,
+        cacheKey: path,
+        displayWidth: 96,
+        displayHeight: 96,
+        errorWidget: _Initials(name: name),
       ),
       loading: () => _Initials(name: name),
       error: (_, _) => _Initials(name: name),

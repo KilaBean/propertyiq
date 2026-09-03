@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../features/properties/presentation/providers/property_providers.dart';
 import '../../shared/models/property.dart';
+import 'signed_network_image.dart';
 
 class PropertyCard extends ConsumerWidget {
   const PropertyCard({super.key, required this.property, this.onTap});
@@ -70,10 +71,12 @@ class _Thumb extends ConsumerWidget {
         width: 44,
         height: 44,
         child: url.when(
-          data: (u) => Image.network(
-            u,
-            fit: BoxFit.cover,
-            errorBuilder: (_, _, _) => Container(
+          data: (u) => SignedNetworkImage(
+            url: u,
+            cacheKey: path,
+            displayWidth: 44,
+            displayHeight: 44,
+            errorWidget: Container(
               color: scheme.surfaceContainerHighest,
               child: const Icon(Icons.apartment, size: 18),
             ),
