@@ -80,7 +80,11 @@ class DashboardScreen extends ConsumerWidget {
                   'Could not load activity.',
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
-                data: (items) {
+                data: (page) {
+                  // managerRequestsProvider is paginated (loads a page at a
+                  // time, newest first); the card only ever shows the 5 most
+                  // recent, which the first page always covers.
+                  final items = page.items;
                   if (items.isEmpty) {
                     return Padding(
                       padding: const EdgeInsets.symmetric(vertical: 16),

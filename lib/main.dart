@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -9,6 +10,8 @@ import 'core/theme/app_theme.dart';
 import 'features/landing/presentation/screens/landing_page.dart';
 
 Future<void> main() async {
+  _registerInterLicense();
+
   // Web only ever serves the marketing landing page — the real app depends
   // on native features (camera, image_picker) that aren't built for web, so
   // there's no Supabase init, no dart-defines, and no router on this path.
@@ -29,6 +32,19 @@ Future<void> main() async {
   );
 
   runApp(const ProviderScope(child: PropertyIQApp()));
+}
+
+/// Surfaces Inter's OFL 1.1 text in Settings > About > Licenses.
+///
+/// Flutter's LicenseRegistry auto-collects LICENSE files from pub
+/// dependencies, but Inter is bundled directly as an asset (see
+/// pubspec.yaml and app_theme.dart), not pulled in via a package, so it
+/// needs registering by hand for the credit to appear.
+void _registerInterLicense() {
+  LicenseRegistry.addLicense(() async* {
+    final license = await rootBundle.loadString('assets/fonts/Inter-OFL.txt');
+    yield LicenseEntryWithLineBreaks(['Inter'], license);
+  });
 }
 
 /// Lightweight root for the web build: just the landing page, no auth/router.

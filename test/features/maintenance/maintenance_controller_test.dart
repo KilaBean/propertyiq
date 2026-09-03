@@ -6,8 +6,10 @@ import 'package:image_picker/image_picker.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:propertyiq/features/maintenance/data/repositories/maintenance_repository.dart';
 import 'package:propertyiq/features/maintenance/presentation/providers/maintenance_controller.dart';
+import 'package:propertyiq/features/maintenance/presentation/providers/maintenance_providers.dart';
 import 'package:propertyiq/shared/models/maintenance_category.dart';
 import 'package:propertyiq/shared/models/maintenance_priority.dart';
+import 'package:propertyiq/shared/models/maintenance_request.dart';
 import 'package:propertyiq/shared/models/maintenance_status.dart';
 
 class MockMaintenanceRepository extends Mock implements MaintenanceRepository {}
@@ -52,6 +54,13 @@ void main() {
           aiRecommendation: any(named: 'aiRecommendation'),
           aiGenerated: any(named: 'aiGenerated'),
         )).thenAnswer((_) async => 'request-1');
+    // setStatus patches the paginated managerRequestsProvider in place
+    // (see maintenance_providers.dart), which builds it against this same
+    // mocked repository the first time it's read.
+    when(() => repo.fetchForManager(
+          offset: any(named: 'offset'),
+          limit: any(named: 'limit'),
+        )).thenAnswer((_) async => const []);
   });
 
   /// A container with the repository mocked, plus a listener that keeps the
@@ -221,6 +230,49 @@ void main() {
       expect(ok, isTrue);
       verify(() => repo.updateStatus('request-1', MaintenanceStatus.resolved))
           .called(1);
+    });
+
+    test('patches the row already loaded, rather than re-fetching the list',
+        () async {
+      when(() => repo.fetchForManager(
+            offset: any(named: 'offset'),
+            limit: any(named: 'limit'),
+          )).thenAnswer((_) async => [
+            MaintenanceView(
+              request: const MaintenanceRequest(
+                id: 'request-1',
+                unitId: 'unit-1',
+                tenantId: 'tenant-1',
+                title: 'Leaking sink',
+                status: MaintenanceStatus.open,
+              ),
+              unitLabel: 'Flat 2B',
+              propertyName: 'Lekki Court',
+              propertyAddress: '',
+              tenantName: 'Ada',
+            ),
+          ]);
+      when(() => repo.updateStatus(any(), any())).thenAnswer((_) async {});
+
+      final container = build();
+      // Loads the first (only) page before the status change, matching the
+      // list screen having already rendered it.
+      await container.read(managerRequestsProvider.future);
+
+      final ok = await container
+          .read(maintenanceControllerProvider.notifier)
+          .setStatus('request-1', MaintenanceStatus.resolved);
+
+      expect(ok, isTrue);
+      final page = container.read(managerRequestsProvider).requireValue;
+      expect(page.items, hasLength(1));
+      expect(page.items.single.request.status, MaintenanceStatus.resolved);
+      // One fetch to load the page, and no second one triggered by the
+      // status change -- the point of patching in place.
+      verify(() => repo.fetchForManager(
+            offset: any(named: 'offset'),
+            limit: any(named: 'limit'),
+          )).called(1);
     });
 
     test('returns false when the update fails', () async {

@@ -9,12 +9,44 @@ import '../../../../core/widgets/empty_state.dart';
 import '../providers/maintenance_providers.dart';
 import '../widgets/maintenance_chips.dart';
 
-/// Tenant view: their own maintenance requests.
-class TenantMaintenanceListScreen extends ConsumerWidget {
+/// Tenant view: their own maintenance requests. Loads a page at a time
+/// (tenantRequestsProvider) and fetches the next as the user nears the
+/// bottom of the list.
+class TenantMaintenanceListScreen extends ConsumerStatefulWidget {
   const TenantMaintenanceListScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<TenantMaintenanceListScreen> createState() =>
+      _TenantMaintenanceListScreenState();
+}
+
+class _TenantMaintenanceListScreenState
+    extends ConsumerState<TenantMaintenanceListScreen> {
+  final _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_maybeLoadMore);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_maybeLoadMore);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _maybeLoadMore() {
+    if (!_scrollController.hasClients) return;
+    final position = _scrollController.position;
+    if (position.pixels >= position.maxScrollExtent - 400) {
+      ref.read(tenantRequestsProvider.notifier).loadMore();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final requests = ref.watch(tenantRequestsProvider);
 
     return Scaffold(
@@ -40,8 +72,8 @@ class TenantMaintenanceListScreen extends ConsumerWidget {
                 child: AsyncValueView(
                   value: requests,
                   onRetry: () => ref.invalidate(tenantRequestsProvider),
-                  data: (items) {
-                    if (items.isEmpty) {
+                  data: (page) {
+                    if (page.items.isEmpty) {
                       return ListView(
                         children: [
                           const SizedBox(height: 120),
@@ -57,11 +89,26 @@ class TenantMaintenanceListScreen extends ConsumerWidget {
                         ],
                       );
                     }
+                    final showSpinner = page.isLoadingMore;
                     return ResponsiveCardList(
+                      controller: _scrollController,
                       childAspectRatio: 2.6,
-                      itemCount: items.length,
+                      itemCount: page.items.length + (showSpinner ? 1 : 0),
                       itemBuilder: (context, i) {
-                        final v = items[i];
+                        if (i == page.items.length) {
+                          return const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 16),
+                            child: Center(
+                              child: SizedBox(
+                                width: 20,
+                                height: 20,
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 2),
+                              ),
+                            ),
+                          );
+                        }
+                        final v = page.items[i];
                         return Card(
                           margin: const EdgeInsets.only(bottom: 12),
                           child: ListTile(

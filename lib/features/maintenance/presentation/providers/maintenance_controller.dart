@@ -61,7 +61,11 @@ class MaintenanceController extends _$MaintenanceController {
     if (ref.mounted) {
       state = result;
       if (!result.hasError) {
-        ref.invalidate(managerRequestsProvider);
+        // The new value is already known, so patch it into whatever pages
+        // are currently loaded rather than invalidating and re-fetching all
+        // of them (managerRequestsProvider is paginated -- see
+        // maintenance_providers.dart) for a change to a single row.
+        ref.read(managerRequestsProvider.notifier).patchStatus(id, status);
         ref.invalidate(maintenanceDetailProvider(id));
       }
     }

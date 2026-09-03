@@ -9,12 +9,46 @@ import '../../../../core/widgets/empty_state.dart';
 import '../providers/maintenance_providers.dart';
 import '../widgets/maintenance_chips.dart';
 
-/// Manager view: all maintenance requests across their units.
-class ManagerMaintenanceListScreen extends ConsumerWidget {
+/// Manager view: all maintenance requests across their units. Loads a page at
+/// a time (managerRequestsProvider) and fetches the next as the user nears
+/// the bottom of the list.
+class ManagerMaintenanceListScreen extends ConsumerStatefulWidget {
   const ManagerMaintenanceListScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ManagerMaintenanceListScreen> createState() =>
+      _ManagerMaintenanceListScreenState();
+}
+
+class _ManagerMaintenanceListScreenState
+    extends ConsumerState<ManagerMaintenanceListScreen> {
+  final _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_maybeLoadMore);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_maybeLoadMore);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  // Triggers the next page a little before the physical end of the list, so
+  // the next batch is already arriving by the time the user reaches it.
+  void _maybeLoadMore() {
+    if (!_scrollController.hasClients) return;
+    final position = _scrollController.position;
+    if (position.pixels >= position.maxScrollExtent - 400) {
+      ref.read(managerRequestsProvider.notifier).loadMore();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final requests = ref.watch(managerRequestsProvider);
 
     return Scaffold(
@@ -40,8 +74,8 @@ class ManagerMaintenanceListScreen extends ConsumerWidget {
                 child: AsyncValueView(
                   value: requests,
                   onRetry: () => ref.invalidate(managerRequestsProvider),
-                  data: (items) {
-                    if (items.isEmpty) {
+                  data: (page) {
+                    if (page.items.isEmpty) {
                       return ListView(
                         children: const [
                           SizedBox(height: 120),
@@ -54,12 +88,27 @@ class ManagerMaintenanceListScreen extends ConsumerWidget {
                         ],
                       );
                     }
+                    final showSpinner = page.isLoadingMore;
                     return ResponsiveCardList(
+                      controller: _scrollController,
                       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                       childAspectRatio: 2.6,
-                      itemCount: items.length,
+                      itemCount: page.items.length + (showSpinner ? 1 : 0),
                       itemBuilder: (context, i) {
-                        final v = items[i];
+                        if (i == page.items.length) {
+                          return const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 16),
+                            child: Center(
+                              child: SizedBox(
+                                width: 20,
+                                height: 20,
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 2),
+                              ),
+                            ),
+                          );
+                        }
+                        final v = page.items[i];
                         return Card(
                           margin: const EdgeInsets.only(bottom: 12),
                           child: ListTile(

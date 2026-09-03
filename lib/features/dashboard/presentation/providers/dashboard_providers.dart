@@ -36,14 +36,15 @@ Future<DashboardStats> dashboardStats(Ref ref) async {
   final uid = ref.watch(sessionProvider)?.user.id;
   if (uid == null) return DashboardStats.empty;
 
-  // Reactivity to property add/remove via the realtime list.
-  final properties = await ref.watch(propertiesListProvider.future);
-
-  // RLS scopes this to the manager's own units; only `status` is needed.
-  final rows = await ref
-      .watch(supabaseClientProvider)
-      .from('units')
-      .select('status');
+  // These are independent of each other -- run them concurrently rather
+  // than one after the other, which halves the round trip on a slow
+  // connection. `properties` gives reactivity to add/remove via the
+  // realtime list; RLS scopes the units query to the manager's own, and
+  // only `status` is needed.
+  final (properties, rows) = await (
+    ref.watch(propertiesListProvider.future),
+    ref.watch(supabaseClientProvider).from('units').select('status'),
+  ).wait;
 
   final occupied = rows.where((r) => r['status'] == 'occupied').length;
 

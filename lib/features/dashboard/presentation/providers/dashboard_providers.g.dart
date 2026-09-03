@@ -53,7 +53,7 @@ final class DashboardStatsProvider
   }
 }
 
-String _$dashboardStatsHash() => r'54de6755677dec8140e77258ee76b8d7a89c3e34';
+String _$dashboardStatsHash() => r'a23118ece0e6294c2a5955a38fe3785eca0a2d66';
 
 /// The chart's currently selected period (toggled by the "Monthly ▾" menu).
 

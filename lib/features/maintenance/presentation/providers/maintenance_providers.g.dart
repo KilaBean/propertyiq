@@ -8,24 +8,15 @@ part of 'maintenance_providers.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// All requests across the manager's units.
+/// All requests across the manager's units, paginated.
 
-@ProviderFor(managerRequests)
+@ProviderFor(ManagerRequests)
 final managerRequestsProvider = ManagerRequestsProvider._();
 
-/// All requests across the manager's units.
-
+/// All requests across the manager's units, paginated.
 final class ManagerRequestsProvider
-    extends
-        $FunctionalProvider<
-          AsyncValue<List<MaintenanceView>>,
-          List<MaintenanceView>,
-          FutureOr<List<MaintenanceView>>
-        >
-    with
-        $FutureModifier<List<MaintenanceView>>,
-        $FutureProvider<List<MaintenanceView>> {
-  /// All requests across the manager's units.
+    extends $AsyncNotifierProvider<ManagerRequests, MaintenancePage> {
+  /// All requests across the manager's units, paginated.
   ManagerRequestsProvider._()
     : super(
         from: null,
@@ -42,36 +33,40 @@ final class ManagerRequestsProvider
 
   @$internal
   @override
-  $FutureProviderElement<List<MaintenanceView>> $createElement(
-    $ProviderPointer pointer,
-  ) => $FutureProviderElement(pointer);
+  ManagerRequests create() => ManagerRequests();
+}
 
+String _$managerRequestsHash() => r'8a5875075b9cd5d2d6d37fa0bf60cf4e1ad27683';
+
+/// All requests across the manager's units, paginated.
+
+abstract class _$ManagerRequests extends $AsyncNotifier<MaintenancePage> {
+  FutureOr<MaintenancePage> build();
+  @$mustCallSuper
   @override
-  FutureOr<List<MaintenanceView>> create(Ref ref) {
-    return managerRequests(ref);
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<AsyncValue<MaintenancePage>, MaintenancePage>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<MaintenancePage>, MaintenancePage>,
+              AsyncValue<MaintenancePage>,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
   }
 }
 
-String _$managerRequestsHash() => r'314e0e88380521a481598ee6b6978dd7fd6ac553';
+/// The signed-in tenant's own requests, paginated.
 
-/// The signed-in tenant's own requests.
-
-@ProviderFor(tenantRequests)
+@ProviderFor(TenantRequests)
 final tenantRequestsProvider = TenantRequestsProvider._();
 
-/// The signed-in tenant's own requests.
-
+/// The signed-in tenant's own requests, paginated.
 final class TenantRequestsProvider
-    extends
-        $FunctionalProvider<
-          AsyncValue<List<MaintenanceView>>,
-          List<MaintenanceView>,
-          FutureOr<List<MaintenanceView>>
-        >
-    with
-        $FutureModifier<List<MaintenanceView>>,
-        $FutureProvider<List<MaintenanceView>> {
-  /// The signed-in tenant's own requests.
+    extends $AsyncNotifierProvider<TenantRequests, MaintenancePage> {
+  /// The signed-in tenant's own requests, paginated.
   TenantRequestsProvider._()
     : super(
         from: null,
@@ -88,17 +83,30 @@ final class TenantRequestsProvider
 
   @$internal
   @override
-  $FutureProviderElement<List<MaintenanceView>> $createElement(
-    $ProviderPointer pointer,
-  ) => $FutureProviderElement(pointer);
-
-  @override
-  FutureOr<List<MaintenanceView>> create(Ref ref) {
-    return tenantRequests(ref);
-  }
+  TenantRequests create() => TenantRequests();
 }
 
-String _$tenantRequestsHash() => r'63c0eea214463ec721318f656f003bab4e2568a6';
+String _$tenantRequestsHash() => r'950a5ce193ed31a875fc3830a94c3fe5db8459a8';
+
+/// The signed-in tenant's own requests, paginated.
+
+abstract class _$TenantRequests extends $AsyncNotifier<MaintenancePage> {
+  FutureOr<MaintenancePage> build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<AsyncValue<MaintenancePage>, MaintenancePage>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<MaintenancePage>, MaintenancePage>,
+              AsyncValue<MaintenancePage>,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
 
 /// A single request (RLS scopes visibility to its tenant or managing manager).
 

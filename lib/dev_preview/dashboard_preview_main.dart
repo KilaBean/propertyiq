@@ -102,6 +102,20 @@ const _mockTrend = [
   OccupancyPoint(label: 'Jul', rate: 92),
 ];
 
+/// managerRequestsProvider is a paginated notifier (maintenance_providers.dart),
+/// so overriding it means substituting a Notifier subclass that skips the
+/// network fetch, not a plain value like the FutureProviders above.
+class _MockManagerRequests extends ManagerRequests {
+  @override
+  // Not const: _mockRequests uses DateTime.now(), so it isn't a compile-time
+  // constant.
+  Future<MaintenancePage> build() async => MaintenancePage(
+        items: _mockRequests,
+        hasMore: false,
+        isLoadingMore: false,
+      );
+}
+
 void main() {
   final router = GoRouter(
     initialLocation: AppRoutes.dashboard,
@@ -118,7 +132,7 @@ void main() {
       overrides: [
         currentProfileProvider.overrideWith((ref) => _mockProfile),
         dashboardStatsProvider.overrideWith((ref) => _mockStats),
-        managerRequestsProvider.overrideWith((ref) => _mockRequests),
+        managerRequestsProvider.overrideWith(_MockManagerRequests.new),
         occupancyTrendProvider.overrideWith((ref, period) => _mockTrend),
       ],
       child: MaterialApp.router(

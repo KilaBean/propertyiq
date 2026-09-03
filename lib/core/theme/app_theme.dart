@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'app_colors.dart';
 
 /// Light & dark [ThemeData] for PropertyIQ, built from the design system:
 /// deep-green brand, Inter type scale, subtle shadows, generous whitespace.
+///
+/// Inter is bundled as a local asset (assets/fonts/Inter-Variable.ttf,
+/// declared under pubspec.yaml's `fonts:`) rather than loaded through the
+/// google_fonts package. google_fonts fetches font files over the network on
+/// first use unless assets are pre-bundled to its exact naming convention,
+/// which produced a visible flash of the fallback font on a slow connection
+/// and an avoidable network dependency for something that should ship with
+/// the binary. A single variable font covers every weight the theme uses.
 class AppTheme {
   const AppTheme._();
 
@@ -69,7 +76,7 @@ class AppTheme {
         foregroundColor: scheme.onSurface,
         elevation: 0,
         scrolledUnderElevation: 0,
-        titleTextStyle: GoogleFonts.inter(
+        titleTextStyle: _inter(
           fontSize: 20,
           height: 26 / 20,
           fontWeight: FontWeight.w600,
@@ -109,7 +116,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          textStyle: GoogleFonts.inter(
+          textStyle: _inter(
             fontSize: 15,
             fontWeight: FontWeight.w600,
           ),
@@ -123,7 +130,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          textStyle: GoogleFonts.inter(
+          textStyle: _inter(
             fontSize: 15,
             fontWeight: FontWeight.w600,
           ),
@@ -159,13 +166,34 @@ class AppTheme {
     );
   }
 
+  /// Builds a [TextStyle] on the bundled Inter font. Named to match the
+  /// call sites this replaced (`GoogleFonts.inter(...)`) so the diff that
+  /// introduced it stayed small; only the parameters this theme actually
+  /// uses are exposed.
+  static TextStyle _inter({
+    double? fontSize,
+    double? height,
+    FontWeight? fontWeight,
+    Color? color,
+    double? letterSpacing,
+  }) {
+    return TextStyle(
+      fontFamily: 'Inter',
+      fontSize: fontSize,
+      height: height,
+      fontWeight: fontWeight,
+      color: color,
+      letterSpacing: letterSpacing,
+    );
+  }
+
   /// Inter type scale from the design system.
   static TextTheme _textTheme(ColorScheme scheme) {
     final primary = scheme.onSurface;
     final secondary = scheme.onSurfaceVariant;
     TextStyle s(double size, double lineHeight, FontWeight weight,
             {Color? color, double? spacing}) =>
-        GoogleFonts.inter(
+        _inter(
           fontSize: size,
           height: lineHeight / size,
           fontWeight: weight,

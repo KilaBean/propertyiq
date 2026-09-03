@@ -45,7 +45,6 @@ dependencies:
   intl: ^0.20.2
   collection: ^1.19.1
   share_plus: ^13.3.0
-  google_fonts: ^8.2.1
   image_picker: ^1.2.3
   url_launcher: ^6.3.2
   fl_chart: ^1.2.0
@@ -94,6 +93,17 @@ flutter:
     - assets/branding/propertyiq_logo_with_text.png
     - assets/branding/propertyiq_logo_with_text_dark.png
     - assets/branding/app_preview_hero.png
+    # OFL 1.1 (assets/fonts/Inter-OFL.txt); registered with Flutter's
+    # LicenseRegistry in main.dart since it isn't a pub package.
+    - assets/fonts/Inter-OFL.txt
+
+  # Bundled locally (not via the google_fonts package) so text never depends
+  # on a network fetch. A single variable font covers every weight the theme
+  # uses. See app_theme.dart.
+  fonts:
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter-Variable.ttf
 
   # To add assets to your application, add an assets section, like this:
   # assets:

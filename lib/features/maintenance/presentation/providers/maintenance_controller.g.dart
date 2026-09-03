@@ -37,7 +37,7 @@ final class MaintenanceControllerProvider
 }
 
 String _$maintenanceControllerHash() =>
-    r'260a89ede9376efdc84e97e5ebc71bb8ff2c2f8d';
+    r'c8d266196d5ac44a4bacf865fcb7fb071cac5cd8';
 
 /// Orchestrates filing a request (AI triage → insert) and status updates.
 

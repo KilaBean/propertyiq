@@ -158,6 +158,9 @@ class _TenancyFormScreenState extends ConsumerState<TenancyFormScreen> {
           padding: const EdgeInsets.all(16),
           child: Form(
             key: _formKey,
+            // Errors surface as the user leaves a field, not only in one dump at
+            // submit -- CLAUDE.md's FORMS section calls for inline validation.
+            autovalidateMode: AutovalidateMode.onUserInteraction,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [

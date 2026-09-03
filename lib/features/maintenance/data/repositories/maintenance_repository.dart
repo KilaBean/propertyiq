@@ -140,20 +140,33 @@ class MaintenanceRepository {
     await _client.from(_table).update({'status': status.value}).eq('id', id);
   }
 
-  Future<List<MaintenanceView>> fetchForTenant(String tenantId) async {
+  /// Fetches one page, newest first. [offset]/[limit] back the list
+  /// screens' infinite scroll (maintenance_providers.dart) -- unpaginated,
+  /// this query grows without bound over a portfolio's lifetime.
+  Future<List<MaintenanceView>> fetchForTenant(
+    String tenantId, {
+    required int offset,
+    required int limit,
+  }) async {
     final rows = await _client
         .from(_table)
         .select(_select)
         .eq('tenant_id', tenantId)
-        .order('created_at', ascending: false);
+        .order('created_at', ascending: false)
+        .range(offset, offset + limit - 1);
     return rows.map(_toView).toList();
   }
 
-  Future<List<MaintenanceView>> fetchForManager() async {
+  /// See [fetchForTenant] -- same pagination, scoped to the manager instead.
+  Future<List<MaintenanceView>> fetchForManager({
+    required int offset,
+    required int limit,
+  }) async {
     final rows = await _client
         .from(_table)
         .select(_select)
-        .order('created_at', ascending: false);
+        .order('created_at', ascending: false)
+        .range(offset, offset + limit - 1);
     return rows.map(_toView).toList();
   }
 
