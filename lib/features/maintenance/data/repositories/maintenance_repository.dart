@@ -142,29 +142,41 @@ class MaintenanceRepository {
 
   /// Fetches one page, newest first. [offset]/[limit] back the list
   /// screens' infinite scroll (maintenance_providers.dart) -- unpaginated,
-  /// this query grows without bound over a portfolio's lifetime.
+  /// this query grows without bound over a portfolio's lifetime. [query],
+  /// given, matches against the title server-side -- searching only the
+  /// page(s) already loaded into memory would silently hide older matches
+  /// the user hasn't scrolled to yet.
   Future<List<MaintenanceView>> fetchForTenant(
     String tenantId, {
     required int offset,
     required int limit,
+    String? query,
   }) async {
-    final rows = await _client
+    var builder = _client
         .from(_table)
         .select(_select)
-        .eq('tenant_id', tenantId)
+        .eq('tenant_id', tenantId);
+    if (query != null && query.isNotEmpty) {
+      builder = builder.ilike('title', '%$query%');
+    }
+    final rows = await builder
         .order('created_at', ascending: false)
         .range(offset, offset + limit - 1);
     return rows.map(_toView).toList();
   }
 
-  /// See [fetchForTenant] -- same pagination, scoped to the manager instead.
+  /// See [fetchForTenant] -- same pagination and search, scoped to the
+  /// manager instead.
   Future<List<MaintenanceView>> fetchForManager({
     required int offset,
     required int limit,
+    String? query,
   }) async {
-    final rows = await _client
-        .from(_table)
-        .select(_select)
+    var builder = _client.from(_table).select(_select);
+    if (query != null && query.isNotEmpty) {
+      builder = builder.ilike('title', '%$query%');
+    }
+    final rows = await builder
         .order('created_at', ascending: false)
         .range(offset, offset + limit - 1);
     return rows.map(_toView).toList();

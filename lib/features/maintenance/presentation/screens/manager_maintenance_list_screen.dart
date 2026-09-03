@@ -7,6 +7,7 @@ import '../../../../core/router/app_routes.dart';
 import '../../../../core/widgets/async_value_view.dart';
 import '../../../../core/widgets/empty_state.dart';
 import '../../../../core/widgets/loading_skeleton.dart';
+import '../../../../core/widgets/search_field.dart';
 import '../providers/maintenance_providers.dart';
 import '../widgets/maintenance_chips.dart';
 
@@ -24,6 +25,7 @@ class ManagerMaintenanceListScreen extends ConsumerStatefulWidget {
 class _ManagerMaintenanceListScreenState
     extends ConsumerState<ManagerMaintenanceListScreen> {
   final _scrollController = ScrollController();
+  String _query = '';
 
   @override
   void initState() {
@@ -69,6 +71,16 @@ class _ManagerMaintenanceListScreenState
                 ],
               ),
             ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+              child: SearchField(
+                hintText: 'Search by title',
+                onChanged: (v) {
+                  setState(() => _query = v);
+                  ref.read(managerRequestsProvider.notifier).search(v);
+                },
+              ),
+            ),
             Expanded(
               child: RefreshIndicator(
                 onRefresh: () async => ref.invalidate(managerRequestsProvider),
@@ -78,14 +90,20 @@ class _ManagerMaintenanceListScreenState
                   loading: (_) => const ListSkeleton(hasLeading: false),
                   data: (page) {
                     if (page.items.isEmpty) {
+                      final searching = _query.isNotEmpty;
                       return ListView(
-                        children: const [
-                          SizedBox(height: 120),
+                        children: [
+                          const SizedBox(height: 120),
                           EmptyState(
-                            icon: Icons.build_outlined,
-                            title: 'No maintenance requests',
-                            message:
-                                'Requests filed by your tenants will appear here.',
+                            icon: searching
+                                ? Icons.search_off
+                                : Icons.build_outlined,
+                            title: searching
+                                ? 'No matches'
+                                : 'No maintenance requests',
+                            message: searching
+                                ? 'No requests match your search.'
+                                : 'Requests filed by your tenants will appear here.',
                           ),
                         ],
                       );

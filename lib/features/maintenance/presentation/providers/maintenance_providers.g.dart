@@ -8,15 +8,15 @@ part of 'maintenance_providers.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// All requests across the manager's units, paginated.
+/// All requests across the manager's units, paginated and searchable.
 
 @ProviderFor(ManagerRequests)
 final managerRequestsProvider = ManagerRequestsProvider._();
 
-/// All requests across the manager's units, paginated.
+/// All requests across the manager's units, paginated and searchable.
 final class ManagerRequestsProvider
     extends $AsyncNotifierProvider<ManagerRequests, MaintenancePage> {
-  /// All requests across the manager's units, paginated.
+  /// All requests across the manager's units, paginated and searchable.
   ManagerRequestsProvider._()
     : super(
         from: null,
@@ -36,9 +36,9 @@ final class ManagerRequestsProvider
   ManagerRequests create() => ManagerRequests();
 }
 
-String _$managerRequestsHash() => r'8a5875075b9cd5d2d6d37fa0bf60cf4e1ad27683';
+String _$managerRequestsHash() => r'480c175489d6ee89f331dae526969d47bbb0bebf';
 
-/// All requests across the manager's units, paginated.
+/// All requests across the manager's units, paginated and searchable.
 
 abstract class _$ManagerRequests extends $AsyncNotifier<MaintenancePage> {
   FutureOr<MaintenancePage> build();
@@ -58,15 +58,15 @@ abstract class _$ManagerRequests extends $AsyncNotifier<MaintenancePage> {
   }
 }
 
-/// The signed-in tenant's own requests, paginated.
+/// The signed-in tenant's own requests, paginated and searchable.
 
 @ProviderFor(TenantRequests)
 final tenantRequestsProvider = TenantRequestsProvider._();
 
-/// The signed-in tenant's own requests, paginated.
+/// The signed-in tenant's own requests, paginated and searchable.
 final class TenantRequestsProvider
     extends $AsyncNotifierProvider<TenantRequests, MaintenancePage> {
-  /// The signed-in tenant's own requests, paginated.
+  /// The signed-in tenant's own requests, paginated and searchable.
   TenantRequestsProvider._()
     : super(
         from: null,
@@ -86,9 +86,9 @@ final class TenantRequestsProvider
   TenantRequests create() => TenantRequests();
 }
 
-String _$tenantRequestsHash() => r'950a5ce193ed31a875fc3830a94c3fe5db8459a8';
+String _$tenantRequestsHash() => r'cbd85ba67b0a0fd33d40758d6b51ed5fd674ff59';
 
-/// The signed-in tenant's own requests, paginated.
+/// The signed-in tenant's own requests, paginated and searchable.
 
 abstract class _$TenantRequests extends $AsyncNotifier<MaintenancePage> {
   FutureOr<MaintenancePage> build();

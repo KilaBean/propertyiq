@@ -40,11 +40,19 @@ class MaintenancePage {
   }
 }
 
-/// All requests across the manager's units, paginated.
+/// All requests across the manager's units, paginated and searchable.
 @riverpod
 class ManagerRequests extends _$ManagerRequests {
+  // Search is server-side (see MaintenanceRepository) so a query matches
+  // every request, not just whatever page happens to be loaded in memory.
+  // Carried as a plain field rather than in MaintenancePage: it's an input
+  // to fetching, not part of the fetched result, and build()/loadMore()
+  // both need to agree on the same one for pagination to stay coherent.
+  String _query = '';
+
   @override
   Future<MaintenancePage> build() async {
+    _query = '';
     final page = await ref
         .watch(maintenanceRepositoryProvider)
         .fetchForManager(offset: 0, limit: _pageSize);
@@ -55,17 +63,42 @@ class ManagerRequests extends _$ManagerRequests {
     );
   }
 
-  /// Fetches the next page and appends it. A no-op while a fetch is already
-  /// in flight or the previous page came back short (nothing left to load).
+  /// Re-queries from the top with [query] (server-side `ilike` on title).
+  /// Empty clears back to the unfiltered list.
+  ///
+  /// Deliberately does not move `state` through AsyncLoading first: leaving
+  /// it as whatever it already is keeps the previous results on screen,
+  /// unchanged, until the new page lands (success or error) -- no skeleton
+  /// flash on every keystroke's debounced trigger.
+  Future<void> search(String query) async {
+    _query = query;
+    final result = await AsyncValue.guard(() async {
+      final page = await ref
+          .read(maintenanceRepositoryProvider)
+          .fetchForManager(offset: 0, limit: _pageSize, query: _query);
+      return MaintenancePage(
+        items: page,
+        hasMore: page.length == _pageSize,
+        isLoadingMore: false,
+      );
+    });
+    state = result;
+  }
+
+  /// Fetches the next page (under the current search, if any) and appends
+  /// it. A no-op while a fetch is already in flight or the previous page
+  /// came back short (nothing left to load).
   Future<void> loadMore() async {
     final current = state.value;
     if (current == null || current.isLoadingMore || !current.hasMore) return;
 
     state = AsyncData(current.copyWith(isLoadingMore: true));
     try {
-      final next = await ref
-          .read(maintenanceRepositoryProvider)
-          .fetchForManager(offset: current.items.length, limit: _pageSize);
+      final next = await ref.read(maintenanceRepositoryProvider).fetchForManager(
+            offset: current.items.length,
+            limit: _pageSize,
+            query: _query,
+          );
       final refreshed = state.value ?? current;
       state = AsyncData(
         MaintenancePage(
@@ -110,11 +143,14 @@ class ManagerRequests extends _$ManagerRequests {
   }
 }
 
-/// The signed-in tenant's own requests, paginated.
+/// The signed-in tenant's own requests, paginated and searchable.
 @riverpod
 class TenantRequests extends _$TenantRequests {
+  String _query = ''; // see ManagerRequests._query
+
   @override
   Future<MaintenancePage> build() async {
+    _query = '';
     final uid = ref.watch(sessionProvider)?.user.id;
     if (uid == null) {
       return const MaintenancePage(items: [], hasMore: false, isLoadingMore: false);
@@ -129,6 +165,24 @@ class TenantRequests extends _$TenantRequests {
     );
   }
 
+  /// See [ManagerRequests.search].
+  Future<void> search(String query) async {
+    final uid = ref.read(sessionProvider)?.user.id;
+    if (uid == null) return;
+    _query = query;
+    final result = await AsyncValue.guard(() async {
+      final page = await ref
+          .read(maintenanceRepositoryProvider)
+          .fetchForTenant(uid, offset: 0, limit: _pageSize, query: _query);
+      return MaintenancePage(
+        items: page,
+        hasMore: page.length == _pageSize,
+        isLoadingMore: false,
+      );
+    });
+    state = result;
+  }
+
   /// See [ManagerRequests.loadMore].
   Future<void> loadMore() async {
     final current = state.value;
@@ -138,9 +192,12 @@ class TenantRequests extends _$TenantRequests {
 
     state = AsyncData(current.copyWith(isLoadingMore: true));
     try {
-      final next = await ref
-          .read(maintenanceRepositoryProvider)
-          .fetchForTenant(uid, offset: current.items.length, limit: _pageSize);
+      final next = await ref.read(maintenanceRepositoryProvider).fetchForTenant(
+            uid,
+            offset: current.items.length,
+            limit: _pageSize,
+            query: _query,
+          );
       final refreshed = state.value ?? current;
       state = AsyncData(
         MaintenancePage(

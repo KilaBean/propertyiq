@@ -68,6 +68,63 @@ void main() {
     expect(find.text('Yaba Heights'), findsOneWidget);
   });
 
+  group('search', () {
+    // The whole list already loads into memory (a realtime stream, not
+    // paginated), so search filters it client-side -- no network involved,
+    // hence the short debounce wait rather than mocking a repository call.
+    testWidgets('filters by name as the user types', (tester) async {
+      await tester.pumpWidget(_app(Stream.value([
+        _property('p1', 'Lekki Court'),
+        _property('p2', 'Yaba Heights'),
+      ])));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byType(TextField), 'lekki');
+      await tester.pump(const Duration(milliseconds: 400));
+
+      expect(find.byType(PropertyCard), findsOneWidget);
+      expect(find.text('Lekki Court'), findsOneWidget);
+      expect(find.text('Yaba Heights'), findsNothing);
+    });
+
+    testWidgets('also matches on address', (tester) async {
+      await tester.pumpWidget(_app(Stream.value([
+        Property(
+          id: 'p1',
+          managerId: 'm1',
+          name: 'Lekki Court',
+          address: '12 Admiralty Way',
+          currency: 'NGN',
+        ),
+        _property('p2', 'Yaba Heights'),
+      ])));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byType(TextField), 'admiralty');
+      await tester.pump(const Duration(milliseconds: 400));
+
+      expect(find.text('Lekki Court'), findsOneWidget);
+      expect(find.text('Yaba Heights'), findsNothing);
+    });
+
+    testWidgets('shows a distinct message for a search with no matches',
+        (tester) async {
+      await tester.pumpWidget(_app(Stream.value([
+        _property('p1', 'Lekki Court'),
+      ])));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byType(TextField), 'nonexistent');
+      await tester.pump(const Duration(milliseconds: 400));
+
+      expect(find.text('No matches'), findsOneWidget);
+      // Not the "add your first property" empty state -- properties exist,
+      // the search just didn't match any of them.
+      expect(find.text('No properties yet'), findsNothing);
+      expect(find.text('Add property'), findsNothing);
+    });
+  });
+
   group('responsive layout', () {
     testWidgets('uses a single column on a phone', (tester) async {
       tester.view.physicalSize = const Size(390, 844);

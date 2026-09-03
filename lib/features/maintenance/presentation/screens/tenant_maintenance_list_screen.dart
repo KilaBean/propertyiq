@@ -7,6 +7,7 @@ import '../../../../core/router/app_routes.dart';
 import '../../../../core/widgets/async_value_view.dart';
 import '../../../../core/widgets/empty_state.dart';
 import '../../../../core/widgets/loading_skeleton.dart';
+import '../../../../core/widgets/search_field.dart';
 import '../providers/maintenance_providers.dart';
 import '../widgets/maintenance_chips.dart';
 
@@ -24,6 +25,7 @@ class TenantMaintenanceListScreen extends ConsumerStatefulWidget {
 class _TenantMaintenanceListScreenState
     extends ConsumerState<TenantMaintenanceListScreen> {
   final _scrollController = ScrollController();
+  String _query = '';
 
   @override
   void initState() {
@@ -67,6 +69,16 @@ class _TenantMaintenanceListScreenState
                 ],
               ),
             ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+              child: SearchField(
+                hintText: 'Search by title',
+                onChanged: (v) {
+                  setState(() => _query = v);
+                  ref.read(tenantRequestsProvider.notifier).search(v);
+                },
+              ),
+            ),
             Expanded(
               child: RefreshIndicator(
                 onRefresh: () async => ref.invalidate(tenantRequestsProvider),
@@ -76,17 +88,23 @@ class _TenantMaintenanceListScreenState
                   loading: (_) => const ListSkeleton(hasLeading: false),
                   data: (page) {
                     if (page.items.isEmpty) {
+                      final searching = _query.isNotEmpty;
                       return ListView(
                         children: [
                           const SizedBox(height: 120),
                           EmptyState(
-                            icon: Icons.build_outlined,
-                            title: 'No requests yet',
-                            message:
-                                'Report an issue and we’ll route it to your manager.',
-                            actionLabel: 'New request',
-                            onAction: () =>
-                                context.push(AppRoutes.tenantMaintenanceNew),
+                            icon: searching
+                                ? Icons.search_off
+                                : Icons.build_outlined,
+                            title: searching ? 'No matches' : 'No requests yet',
+                            message: searching
+                                ? 'No requests match your search.'
+                                : 'Report an issue and we’ll route it to your manager.',
+                            actionLabel: searching ? null : 'New request',
+                            onAction: searching
+                                ? null
+                                : () => context
+                                    .push(AppRoutes.tenantMaintenanceNew),
                           ),
                         ],
                       );
